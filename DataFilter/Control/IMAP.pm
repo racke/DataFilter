@@ -35,10 +35,11 @@ sub connect {
 									User => $self->{login},
 									Password => $self->{password},
 									Socket => $sock,
-									Peek => 1);
+									Peek => 1,
+									Debug => $self->{debug});
 
 	# set state manually to "Connected"
-	$client->{State} = 1;
+	$client->connect();
 	$client->login();
 
 	$self->{client} = $client;
@@ -48,6 +49,9 @@ sub list {
 	my ($self, $folder) = @_;
 
 	if ($folder) {
+		unless ($self->{client}->exists($folder)) {
+			die "$0: Folder $folder not found\n";
+		}
 		print "Messages in folder $folder: ", $self->{client}->message_count($folder), "\n";
 		$self->{client}->select($folder);
 		$self->{client}->search('ALL');
