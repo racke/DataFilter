@@ -37,7 +37,7 @@ sub new {
 
 sub prepare_filter {
 	my ($self, $lineref, $colref, $line_sub) = @_;
-	my (@rescols, @passin, @passout);
+	my (@rescols, %colnames, @passin, @passout);
 	my $extra_code = '';
 	
 	for (my $i = 0; $i < @$lineref; $i++) {
@@ -45,24 +45,26 @@ sub prepare_filter {
 		if (defined $colaction) {
 			if (ref $colaction eq 'ARRAY') {
 				if ($$colaction[0] eq 'split_regex') {
-					my (@splitin, @splitout, $splitstr);
-					my @splitspec = @{$$colaction[2]};
-					for (my $r = 0; $r < @splitspec; $r++) {
-						next unless defined $splitspec[$r];
-						push (@splitin, "\$" . ($r + 1));
-						push (@splitout, scalar(@rescols));
-						push (@rescols, $splitspec[$r]);
+					my (@regspecs, @regcols);
+					if (ref $$colaction[1] eq 'ARRAY') {
+						# multiple regular expressions
+						@regspecs = @{$$colaction[1]};
+						@regcols = @{$$colaction[2]};
+					} else {
+						@regspecs = ($$colaction[1]);
+						@regcols = ($$colaction[2]);
 					}
-					$splitstr = "\@out[" . join(",", @splitout) . "] = (" . join(",", @splitin) . ")";
-					$extra_code .= "if (\$cols[$i] =~ /$$colaction[1]/) {$splitstr}\n";
+					for (my $t = 0; $t < @regspecs; $t++) {
+						$extra_code .= build_splitregex_code($regspecs[$t], $regcols[$t], \@rescols, \%colnames, $i);
+					}
 				} else {
 					die "$0: unknown column action $$colaction[0]\n";
 				}
 			} else {
 				push (@passin, $i);
 				push (@passout, scalar(@rescols));
+				$colnames{$colaction} = scalar(@rescols);
 				push (@rescols, $colaction);
-				
 			}
 		}
 	}
@@ -82,7 +84,10 @@ sub {
 };	
 };
 
-	# now compile the code	
+	# now compile the code
+#	print "@rescols\n";
+#	print "$code\n"; exit;
+	
 	$$line_sub = eval $code;
 	if ($@) {
 		die "internal error: $@\n";
@@ -90,6 +95,28 @@ sub {
 
 	@$colref = @rescols;
 	return 1;
+}
+
+sub build_splitregex_code {
+	my ($colreg, $colspec, $rescolsref, $colnamesref, $idx) = @_;
+	my (@splitin, @splitout, $splitstr);
+
+	my @splitspec = @$colspec;
+	
+	for (my $r = 0; $r < @splitspec; $r++) {
+		next unless defined $splitspec[$r];
+		push (@splitin, "\$" . ($r + 1));
+		if (exists $$colnamesref{$splitspec[$r]}) {
+			push (@splitout, $$colnamesref{$splitspec[$r]});
+		} else {
+			push (@splitout, scalar(@$rescolsref));
+			$$colnamesref{$splitspec[$r]} = scalar(@$rescolsref);
+			push (@$rescolsref, $splitspec[$r]);
+		}
+	}
+
+	$splitstr = "\@out[" . join(",", @splitout) . "] = (" . join(",", @splitin) . ")";
+	return "if (\$cols[$idx] =~ /$colreg/) {$splitstr}\n";
 }
 
 1;	
