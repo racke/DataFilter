@@ -32,6 +32,14 @@ sub new {
 
 	$self->{_sheets_} = {};
 
+	if ($self->{columns}) {
+	    if (ref($self->{columns}) eq 'ARRAY') {
+	        $self->{_columns_} = delete $self->{columns};
+	    } else {
+		$self->{_columns_} = [split(/\s*,\s*/, delete $self->{columns})];
+	    }
+	}
+		
 	if ($self->{verify}) {
 		unless ($self->_parse_($self->{name})) {
 			return 'DATAFILTER_WRONG_FORMAT';
@@ -52,6 +60,8 @@ sub DESTROY {
 sub columns {
 	my ($self, $table) = @_;
 	my ($sheet, @columns, $colname);
+
+	return @{$self->{_columns_}} if $self->{_columns_};
 	
 	$table ||= 0;
 	$sheet = $self->{_xls_}->{Worksheet}[$table];
