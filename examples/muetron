@@ -1,0 +1,103 @@
+#! /usr/bin/perl
+#
+# Copyright 2003 by Stefan Hornburg (Racke) <racke@linuxia.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Free
+# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA.
+
+use strict;
+use warnings;
+
+use IO::File;
+use IO::ScalarArray;
+
+package DataFilter::Filter::Fixed;
+use vars qw(@ISA @EXPORT @EXPORT_OK);
+
+require Exporter;
+
+@ISA = qw(Exporter);
+
+sub new {
+	my $proto = shift;
+	my $class = ref ($proto) || $proto;
+	my $self = {};
+
+	bless ($self, $class);
+	return $self;
+}
+
+sub filter {
+	my ($self, $input, $output) = @_;
+	my ($line, $recno);
+
+	push (@$output, [map {$_->[0]} @{$self->{_COLUMNS_}}]);
+	$recno = 1;
+	while (defined ($line = $input->getline())) {
+		my @values;
+		chomp($line);
+		for (my $i = 0; $i < @{$self->{_COLUMNS_}}; $i++) {
+			$output->[$recno]->[$i] = substr($line, $self->{_COLUMNS_}->[$i]->[1], $self->{_COLUMNS_}->[$i]->[2]) || '';
+		}
+		$recno++;
+	}
+}
+
+sub param {
+	my ($self, $column, $start, $length) = @_;
+
+	push (@{$self->{_COLUMNS_}}, [$column, $start, $length]);
+	return 1;
+}
+
+package main;
+
+unless (@ARGV) {
+	die "$0: no input file specified\n";
+}
+
+my $inputfile = shift;
+my $inputhandle = new IO::File;
+my $output = [];
+
+unless ($inputhandle->open($inputfile)) {
+	die "$0: couldn't open input file $inputfile: $!\n";
+}
+
+my $filter = new DataFilter::Filter::Fixed;
+
+$filter->param('offcode', 10, 20);
+$filter->param('partnumber', 34, 40);
+$filter->param('description', 74, 60);
+$filter->param('manufacturer', 134, 30);
+$filter->param('sellunit', 164, 10);
+$filter->param('count', 174, 10);
+$filter->param('price', 184, 10);
+$filter->param('priceunit', 194, 10);
+$filter->param('yearofpurchase', 204, 10);
+$filter->filter($inputhandle, $output);
+
+use XML::Generator;
+my $xml = new XML::Generator (pretty => 1);
+my (@columns, @rows);
+my $col;
+
+for (my $i = 1; $i < @$output; $i++) {
+	@columns = @{$output->[0]};
+	push (@rows,
+		  $xml->component(map {$col = shift(@columns); $xml->$col($_)} @{$output->[1]}));
+}
+print $xml->componentlist(@rows);
+
