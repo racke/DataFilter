@@ -67,6 +67,11 @@ sub import_components {
 
 		$comphash{sell} = 1;
 		$comphash{pricing} = 'rfq';
+
+		if ($comphash{count} !~ /^\s*\d+\s*$/) {
+			warn "partnumber $comphash{partnumber} has invalid count $comphash{count}\n";
+			next;
+		}
 		
 		if ($comphash{count} < 1) {
 			warn "partnumber $comphash{partnumber} has count < 1\n";
