@@ -29,9 +29,20 @@ sub key_columns {
 }
 
 sub import_components {
-	my ($self, $company_idf, $componentlist) = @_;
+	my ($self, $company_token, $componentlist) = @_;
 	my $dbif = new DBIx::Easy ('mysql', 'matstock');
-
+	my ($sth, $row, $company_idf);
+	
+	# check first for company idf
+	$sth = $dbif->process('select idf from company where customerid = ' . $dbif->quote($company_token));
+	if ($sth->rows() == 0) {
+		$sth->finish();
+		die "$0: no company found with customerid $company_token\n";
+	} else {
+		$row = $sth->fetch();
+		$company_idf = $row->[0];
+	}
+	
 	# initially mark components as deleted
 	$dbif->update('component', "company_idf = $company_idf", deleted => 1);
 

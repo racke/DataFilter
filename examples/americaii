@@ -46,4 +46,4 @@ $filter->filter($inputhandle, $output);
 my $mb = new Stock::Materialboerse;
 
 $mb->key_columns ('partnumber', 'manufacturer');
-$mb->import_components (9, $output);
+$mb->import_components ('ame3705yi', $output);
