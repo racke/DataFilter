@@ -44,10 +44,19 @@ sub primary_key {
 	return $pri_name;
 }
 
+sub columns {
+	my ($self, $table) = @_;
+
+	$table ||= $self->{table};
+	$self->{_dbif_}->columns($table);
+}
+
 sub enum_records {
 	my ($self, $table, $limit) = @_;
 	my $sth;
 	my $limitstr = $limit ? " limit $limit" : '';
+
+	$table ||= $self->{table};
 	
 	unless ($sth = $self->{_enums_}->{$table}) {
 		$sth = $self->{_dbif_}->process ("select * from ${table}$limitstr");
