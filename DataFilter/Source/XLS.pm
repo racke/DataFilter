@@ -44,7 +44,7 @@ sub new {
 sub DESTROY {
 	my $self = shift;
 
-	if ($self->{_xls_}) {
+	if (UNIVERSAL::isa($self->{_xls_}, 'Spreadsheet::WriteExcel')) {
 		$self->{_xls_}->close();
 	}
 }
@@ -60,6 +60,15 @@ sub columns {
 	}
 
 	return (@columns);
+}
+
+sub rows {
+	my ($self, $table) = @_;
+	my ($sheet);
+
+	$table ||= 0;
+	$sheet = $self->{_xls_}->{Worksheet}[$table];
+	return $sheet->{MaxRow} - 1;
 }
 
 sub enum_records {
