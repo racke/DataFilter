@@ -52,4 +52,24 @@ sub hash_records {
 	$self->{_dbif_}->makemap($pref->{table}, $pref->{key}, $pref->{value});
 }
 
+sub record {
+	my ($self, $table, $key) = @_;
+	my ($tblinfo_ref, @keys, $pri_name, $sth, $href);
+	
+	$tblinfo_ref = $self->{_dbif_}->describe_table($table);
+	if (@keys = grep {$_->{Key} eq 'PRI'} @{$tblinfo_ref->{columns}}) {
+		$pri_name = $keys[0]->{Field};
+	} else {
+		die "$0: no key found for $table\n";
+	}
+	
+	$sth = $self->{_dbif_}->process("select * from $table where $pri_name = '$key'");
+	if ($sth->rows()) {
+		$href = $sth->fetchrow_hashref();
+		$sth->finish();
+		return $href;
+	}
+
+}
+
 1;
