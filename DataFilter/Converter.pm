@@ -31,9 +31,14 @@ sub new {
 }
 
 sub define {
-	my ($self, $source, $target) = @_;
-
-	$self->{_defines_}->{$source} = $target;
+	my ($self, @args) = @_;
+	my ($source, $target);
+	
+	while (@args) {
+		$source = shift @args;
+		$target = shift @args;
+		$self->{_defines_}->{$source} = $target;
+	}
 }
 
 sub convert {
