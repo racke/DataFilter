@@ -28,7 +28,11 @@ sub new {
 
 	bless ($self, $class);
 
-	$self->{_dbif_} = new DBIx::Easy ('mysql', $self->{name});
+	$self->{_dbif_} = new DBIx::Easy ('mysql',
+									  $self->{name},
+									  $self->{username},
+									  $self->{password}
+									 );
 	
 	return $self;
 }
