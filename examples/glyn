@@ -1,0 +1,49 @@
+#! /usr/bin/perl
+#
+# Copyright 2003 by Stefan Hornburg (Racke) <racke@linuxia.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Free
+# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA.
+
+use strict;
+use warnings;
+
+use IO::File;
+use IO::ScalarArray;
+
+use DataFilter::Filter::TAB;
+use Stock::Materialboerse;
+
+unless (@ARGV) {
+	die "$0: no input file specified\n";
+}
+
+my $inputfile = shift;
+my $inputhandle = new IO::File;
+my $output = [];
+
+unless ($inputhandle->open($inputfile)) {
+	die "$0: couldn't open input file $inputfile: $!\n";
+}
+
+my $filter = new DataFilter::Filter::TAB;
+
+$filter->param('INPUT_COLUMNS', ['partnumber', undef, undef, undef, ['split_regex', qr{zus.\s+Bemerk\s*:(.*)}, ['description',]] , undef, undef, undef, undef, undef, undef, 'manufacturer', 'count', undef]);
+$filter->filter($inputhandle, $output);
+
+my $mb = new Stock::Materialboerse;
+
+$mb->key_columns ('partnumber', 'manufacturer');
+$mb->import_components ('gly1902px', $output);
