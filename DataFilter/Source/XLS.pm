@@ -80,6 +80,10 @@ sub enum_records {
 	my ($sheet, @columns, %record, $cell);
 
 	$table ||= 0;
+
+	unless ($self->{_xls}) {
+	    $self->_parse_($self->{name});
+	}
 	
 	unless ($sheet = $self->{_sheets_}->{$table}) {
 		$sheet
