@@ -78,9 +78,14 @@ sub import_components {
 			next;
 		}
 
-		$comphash{partnumber_org} = $comphash{partnumber};
+		$comphash{partnumber_org} = $comphash{partnumber}
+			unless $comphash{partnumber_org};
 		$comphash{partnumber} =~ s%[/-]%%g;
 		$comphash{partnumber} = uc($comphash{partnumber});
+
+		if (exists $comphash{package_kind}) {
+			$comphash{package_kind} ||= '';
+		}
 		
 		my $sth = $dbif->process ("select * from component where " . join(' AND ', @colconds));
 		if ($sth->rows == 0) {
