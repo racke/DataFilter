@@ -30,10 +30,12 @@ sub connect {
 		&IO::Socket::SSL::errstr(), "\n";
 	}
 
+	# initialize IMAPClient object, Peek avoids setting on the Seen flag
 	$client = new Mail::IMAPClient (Server => $self->{server},
 									User => $self->{login},
 									Password => $self->{password},
-									Socket => $sock);
+									Socket => $sock,
+									Peek => 1);
 
 	# set state manually to "Connected"
 	$client->{State} = 1;
@@ -58,6 +60,14 @@ sub data {
 	my ($self, $id) = @_;
 
 	$self->{client}->message_string($id);
+}
+
+sub subject {
+	my ($self, $id) = @_;
+	my $hdrref;
+	
+	$hdrref = $self->{client}->parse_headers($id, 'Subject');
+	return $hdrref->{Subject}->[0] || '';
 }
 
 1;
