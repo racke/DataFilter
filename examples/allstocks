@@ -56,7 +56,7 @@ $filter->param('INPUT_COLUMNS', ['partnumber',
 								 undef,
 								 undef,
 								 ['split_regex', qr{^man-part-no\.::?\s*(.*)$}, ['partnumber_org']],
-								  ['split_regex', qr{^(dc)?(\d\d[\d\s+-]*)$}, [undef, 'datecode']],
+								  ['split_regex', qr{^(dc)?(.*)$}, [undef, 'datecode']],
 								  'manufacturer',
 								  'count',
 								  undef]);
