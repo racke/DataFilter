@@ -81,9 +81,16 @@ sub inout {
 	};
 
 	if ($@) {
+		# fatal error
 		die "$0: Failed to create object from $class: $@\n";
 	}
 
+	unless (ref ($inout)) {
+		# error
+		$self->{_error_} = $inout;
+		return;
+	}
+		
 	return $inout;
 }
 
@@ -103,6 +110,12 @@ sub converter {
 	my ($self, @args) = @_;
 	
 	new DataFilter::Converter(@args);
+}
+
+sub error {
+	my ($self) = @_;
+
+	return $self->{_error_};
 }
 
 1;	
