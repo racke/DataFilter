@@ -45,7 +45,7 @@ sub source {
 
 	eval "require $class";
 	if ($@) {
-		die "$0: Failed to load class $class\n";
+		die "$0: Failed to load class $class: $@\n";
 	}
 	
 	eval {
