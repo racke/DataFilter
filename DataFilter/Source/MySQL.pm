@@ -94,4 +94,16 @@ sub add_record {
 	return $id;
 }
 
+sub update_record {
+	my ($self, $table, $key, $record) = @_;
+	my ($pri_name);
+
+	unless ($pri_name = $self->primary_key($table)) {
+		die "No primary key\n";
+	}
+
+	$self->{_dbif_}->update($table, "$pri_name = '$key'",
+							%$record);
+}
+
 1;
