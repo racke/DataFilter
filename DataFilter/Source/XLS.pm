@@ -56,7 +56,7 @@ sub columns {
 	$table ||= 0;
 	$sheet = $self->{_xls_}->{Worksheet}[$table];
 	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
-		push (@columns, $sheet->{Cells}[0][$i]->Value());
+		push (@columns, $sheet->{Cells}[0][$i]->{Val});
 	}
 
 	return (@columns);
@@ -89,7 +89,7 @@ sub enum_records {
 		@columns = $self->columns($table);
 		for (my $i = 0; $i < @columns; $i++) {
 			if ($cell = $sheet->{obj}->{Cells}[$sheet->{row}][$i]) {
-				$record{$columns[$i]} = $cell->Value();
+				$record{$columns[$i]} = $cell->{Val};
 			} else {
 				$record{$columns[$i]} = '';
 			}
