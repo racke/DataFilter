@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+export PERL5LIB=/home/minivend/datafilter
+cd ~/matstock/stocks
+for file in *.txt; do 
+	echo "Processing file $file"
+	echo "---------------------"
+	echo ""
+	customerid=`basename "$file" .txt`
+	~/datafilter/examples/allstocks "$file" "$customerid"
+	echo ""
+done
+
