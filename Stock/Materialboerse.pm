@@ -55,7 +55,7 @@ sub import_components {
 		
 		for (my $col = 0; $col < @columns; $col++) {
 			if (exists $self->{KEY_COLUMNS}->{$columns[$col]}) {
-				$key_columns {$columns[$col]} = $componentlist->[$row]->[$col];
+					$key_columns {$columns[$col]} = $componentlist->[$row]->[$col];
 			}
 			$comphash {$columns[$col]} = $componentlist->[$row]->[$col];
 		}
@@ -77,7 +77,11 @@ sub import_components {
 			warn "partnumber $comphash{partnumber} has count < 1\n";
 			next;
 		}
-			
+
+		$comphash{partnumber_org} = $comphash{partnumber};
+		$comphash{partnumber} =~ s%[/-]%%g;
+		$comphash{partnumber} = uc($comphash{partnumber});
+		
 		my $sth = $dbif->process ("select * from component where " . join(' AND ', @colconds));
 		if ($sth->rows == 0) {
 			$dbif->insert('component', %comphash);
