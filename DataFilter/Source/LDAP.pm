@@ -97,26 +97,39 @@ sub update_record {
 
 	# first we check for changes
 	my ($value, @changes);
-	
+
 	for (keys %$record) {
 		unless ($entry->exists($_)) {
-			print "Added $_: $record->{$_}\n";
-			push (@changes, 'add', [$_, Unicode::String::latin1($record->{$_})->utf8()]);
+			if ($record->{$_} =~ /\S/) {
+				# this attribute previously had no value,
+				# therefore we need to add it
+				push (@changes, 'add', [$_, Unicode::String::latin1($record->{$_})->utf8()]);
+			}
 			next;
 		}
-		
+
 		$value = $entry->get_value($_);
+		
+		if ($record->{$_} !~ /\S/) {
+			# this attribute losts its value
+			# therefore we need to remove it
+			push (@changes, 'delete', [$_, []]);
+			next;
+		}
+
 		$value = Unicode::String::utf8($value)->latin1();
 		if ($value ne $record->{$_}) {
-			print "Changed $_ from $value to $record->{$_}\n";
 			push (@changes, 'replace', [$_, Unicode::String::latin1($record->{$_})->utf8()]);
 		}
 	}
 
 	if (@changes) {
-		print "Updating dn " . $entry->dn() . "\n";
+#		print "Updating dn " . $entry->dn() . "\n";
 		my $r = $self->{_ldif_}->modify($entry->dn(), changes => \@changes);
 		if ($r->code()) {
+			require Data::Dumper;
+			warn "Update failed for dn ", $entry->dn(), "\n";
+			warn "Changes: ", Data::Dumper::Dumper(\@changes);
 			die $r->error(), "\n";
 		}
 		return 1;
