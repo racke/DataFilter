@@ -14,7 +14,6 @@ use Vend::Data;
 sub datafilter {
 	my ($opt) = @_;
 	my ($tmpfile, $ret);
-
 	my $source = $opt->{source};
 	my $target = $opt->{target};
 	
@@ -61,6 +60,7 @@ sub datafilter {
 		my $converter = $df->converter(DEFINED_ONLY => 1);
 		my $map = $opt->{map};
 		my $fixed = $opt->{fixed};
+		my $filter = $opt->{filter};
 		
 		my $record;
 
@@ -75,6 +75,12 @@ sub datafilter {
 		
 		while ($record = $df_source->enum_records()) {
 			$record = $converter->convert($record);
+			# filters
+			for (keys %$record) {
+				if ($filter->{$_}) {
+					$record->{$_} = $filter->{$_}->($record->{$_});
+				}
+			}
 			$df_target->add_record($target->{name}, $record);
 		}
 	}
