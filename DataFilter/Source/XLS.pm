@@ -31,6 +31,13 @@ sub new {
 	bless ($self, $class);
 
 	$self->{_sheets_} = {};
+
+	if ($self->{verify}) {
+		unless ($self->_parse_($self->{name})) {
+			return 'DATAFILTER_WRONG_FORMAT';
+		}
+	}
+	
 	return $self;
 }
 
@@ -42,6 +49,19 @@ sub DESTROY {
 	}
 }
 
+sub columns {
+	my ($self, $table) = @_;
+	my ($sheet, @columns);
+	
+	$table ||= 0;
+	$sheet = $self->{_xls_}->{Worksheet}[$table];
+	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
+		push (@columns, $sheet->{Cells}[0][$i]->Value());
+	}
+
+	return (@columns);
+}
+
 sub enum_records {
 	
 }
@@ -51,6 +71,14 @@ sub add_record {
 
 	my $sref = $self->_create_('', $table);
 	$self->_write_($sref, $record);
+}
+
+sub _parse_ {
+	my ($self, $xlsfile) = @_;
+	my ($xls);
+
+	$xls = new Spreadsheet::ParseExcel;
+	$self->{_xls_} = $xls->Parse($xlsfile);
 }
 
 sub _create_ {
