@@ -21,6 +21,7 @@ package DataFilter::Source::LDAP;
 use strict;
 
 use Net::LDAP;
+use Unicode::String;
 
 sub new {
 	my $proto = shift;
@@ -30,7 +31,98 @@ sub new {
 	bless ($self, $class);
 
 	$self->{_ldif_} = new Net::LDAP ($self->{host});
+
+	if ($self->{username}) {
+		$self->{_ldif_}->bind($self->{username}, password => $self->{password});
+	} else {
+		$self->{_ldif_}->bind();
+	}
+	
 	return $self;
+}
+
+sub enum_records {
+	my ($self) = shift;
+	
+	unless (defined $self->{_results_}) {
+		my $results = $self->{_ldif_}->search (base => 'dc=materialboerse,dc=de', filter => '(objectclass=*)');
+		if ($results->code()) {
+			die "$0: LDAP error: " . $results->error() . "\n";
+		}
+
+		$self->{_results_} = $results;
+	}
+
+	my $entry = $self->{_results_}->shift_entry;
+	return $entry;
+}
+
+sub get_record {
+	my ($self, $dn) = @_;
+	my ($s);
+
+	$s = $self->{_ldif_}->search(base => $dn, filter => '(objectclass=*)');#
+	if ($s->code() == 32) {
+		# no such object
+		return;
+	}
+	if ($s->code() == 34) {
+		# invalid DN
+		return;
+	}
+	
+	if ($s->code()) {
+		die "$0: LDAP error " . $s->code() . ": " . $s->error() . "($dn)\n";
+	}
+
+	return $s->entry(0);
+}
+
+sub set_record {
+	my ($self, $dn, $record) = @_;
+	my ($entry);
+
+	if ($entry = $self->get_record($dn)) {
+		$self->update_record($entry, $record);
+	} else {
+		$self->add_record($dn, $record);
+	}
+}
+
+sub add_record {
+}
+
+sub update_record {
+	my ($self, $entry, $record) = @_;
+
+	# first we check for changes
+	my ($value, @changes);
+	
+	for (keys %$record) {
+		unless ($entry->exists($_)) {
+			print "Added $_: $record->{$_}\n";
+			push (@changes, 'add', [$_, Unicode::String::latin1($record->{$_})->utf8()]);
+			next;
+		}
+		
+		$value = $entry->get_value($_);
+		$value = Unicode::String::utf8($value)->latin1();
+		if ($value ne $record->{$_}) {
+			print "Changed $_ from $value to $record->{$_}\n";
+			push (@changes, 'replace', [$_, Unicode::String::latin1($record->{$_})->utf8()]);
+		}
+	}
+
+	if (@changes) {
+		print "Updating dn " . $entry->dn() . "\n";
+		my $r = $self->{_ldif_}->modify($entry->dn(), changes => \@changes);
+		if ($r->code()) {
+			die $r->error(), "\n";
+		}
+		return 1;
+	}
+
+	
 }
 
 1;
