@@ -48,7 +48,7 @@ my $filter = new DataFilter::Filter::TAB;
 
 $filter->param('INPUT_COLUMNS', ['partnumber',
 								 undef,
-								 undef,
+								 'price',
 								 undef,
 								 undef,
 								 undef,
@@ -56,7 +56,7 @@ $filter->param('INPUT_COLUMNS', ['partnumber',
 								 undef,
 								 undef,
 								 ['split_regex', qr{^man-part-no\.::?\s*(.*)$}, ['partnumber_org']],
-								  'datecode',
+								  ['split_regex', qr{^(dc)?(\d\d[\d\s+-]*)$}, [undef, 'datecode']],
 								  'manufacturer',
 								  'count',
 								  undef]);
