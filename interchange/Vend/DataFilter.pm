@@ -19,11 +19,20 @@ sub datafilter {
 	
 	$df = new DataFilter;
 
+	if ($source->{repository}) {
+		Vend::Tags->write_relative_file($source->{repository},
+										\$CGI::file{$source->{name}});
+	}
+	
 	if ($source->{type} eq 'XLS') {
-		# we need to store the input as temporary file first
-		$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
-		Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
-
+		if ($source->{repository}) {
+			$tmpfile = $source->{repository};
+		} else {
+			# we need to store the input as temporary file first
+			$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
+			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
+		}
+		
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile,
 								 verify => 1);
