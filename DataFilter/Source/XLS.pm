@@ -68,11 +68,35 @@ sub rows {
 
 	$table ||= 0;
 	$sheet = $self->{_xls_}->{Worksheet}[$table];
-	return $sheet->{MaxRow} - 1;
+	return $sheet->{MaxRow};
 }
 
 sub enum_records {
+	my ($self, $table) = @_;
+	my ($sheet, @columns, %record, $cell);
+
+	$table ||= 0;
 	
+	unless ($sheet = $self->{_sheets_}->{$table}) {
+		$sheet
+			= $self->{_sheets_}->{$table}
+				= {obj => $self->{_xls_}->{Worksheet}[$sheet],
+				   row => 1, col => 0};
+	}
+
+	if ($sheet->{row} <= $sheet->{obj}->{MaxRow}) {
+		# read row from spreadsheet
+		@columns = $self->columns($table);
+		for (my $i = 0; $i < @columns; $i++) {
+			if ($cell = $sheet->{obj}->{Cells}[$sheet->{row}][$i]) {
+				$record{$columns[$i]} = $cell->Value();
+			} else {
+				$record{$columns[$i]} = '';
+			}
+		}
+		$sheet->{row}++;
+		return \%record;
+	}
 }
 
 sub add_record {
