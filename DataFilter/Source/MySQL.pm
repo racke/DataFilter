@@ -46,4 +46,10 @@ sub enum_records {
 	return $sth->fetchrow_hashref();
 }
 
+sub hash_records {
+	my ($self, $pref) = @_;
+
+	$self->{_dbif_}->makemap($pref->{table}, $pref->{key}, $pref->{value});
+}
+
 1;
