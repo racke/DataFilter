@@ -59,7 +59,7 @@ sub enum_records {
 
 sub hash_records {
 	my ($self, $pref) = @_;
-	my $key = $pref->{key} | $self->primary_key($pref->{table});
+	my $key = $pref->{key} || $self->primary_key($pref->{table});
 	
 	$self->{_dbif_}->makemap($pref->{table}, $key, $pref->{value},
 							 $pref->{conditions});
@@ -80,6 +80,18 @@ sub record {
 		return $href;
 	}
 
+}
+
+sub add_record {
+	my ($self, $table, $record) = @_;
+	my ($sth, $id);
+	
+	$self->{_dbif_}->insert($table, %$record);
+	$sth = $self->{_dbif_}->process("select last_insert_id()");
+	$id = $sth->fetch()->[0];
+	$sth->finish();
+
+	return $id;
 }
 
 1;
