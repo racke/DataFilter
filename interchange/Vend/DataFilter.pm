@@ -10,6 +10,7 @@ use warnings;
 use DataFilter;
 
 use Vend::Data;
+use Vend::Util;
 
 sub datafilter {
 	my ($opt) = @_;
@@ -61,6 +62,7 @@ sub datafilter {
 		my $map = $opt->{map} || {};
 		my $fixed = $opt->{fixed} || {};
 		my $filter = $opt->{filter} || {};
+		my $check = $opt->{check} || {};
 		
 		my $record;
 
@@ -78,10 +80,22 @@ sub datafilter {
 			
 			$record = $converter->convert($record);
 			# filters
+			my %errors;
+			
 			for (keys %$record) {
+				if ($check->{$_}) {
+					my ($status, $name, $message) = $check->{$_}->($_, $record->{$_});
+					unless ($status) {
+						$errors{$_} = $message;
+					}
+				}
 				if ($filter->{$_}) {
 					$record->{$_} = $filter->{$_}->($record->{$_});
 				}
+			}
+			if (keys %errors) {
+				$record->{upload_errors} = scalar(keys %errors);
+				$record->{upload_messages} = ::uneval(\%errors);
 			}
 			$df_target->add_record($target->{name}, $record);
 		}
