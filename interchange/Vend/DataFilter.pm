@@ -9,17 +9,20 @@ use warnings;
 
 use DataFilter;
 
+use Vend::Data;
+
 sub datafilter {
 	my ($opt) = @_;
-	my ($tmpfile);
-
-	my $source = $opt->{source};
+	my ($tmpfile, $ret);
 	
-	my ($df, $df_source);
+	my $source = $opt->{source};
+	my $target = $opt->{target};
+	
+	my ($df, $df_source, $df_target);
 	
 	$df = new DataFilter;
 
-	if ($source->{repository}) {
+	if ($source->{name} && $source->{repository}) {
 		Vend::Tags->write_relative_file($source->{repository},
 										\$CGI::file{$source->{name}});
 	}
@@ -32,7 +35,6 @@ sub datafilter {
 			$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
 			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
 		}
-		
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile,
 								 verify => 1);
@@ -42,9 +44,28 @@ sub datafilter {
 		return $df->error();
 	}
 
-	if ($opt->{return} eq 'columns') {
-		return join(',', $df_source->columns());
+	if ($target->{type} eq 'IC') {
+		my $dbref = Vend::Data::database_exists_ref($target->{name});
+		my $dbcfg = $dbref->[0];
+
+		if ($dbcfg->{Class} eq 'DBI' && $dbcfg->{DSN} =~ /^dbi:mysql:(\w+)/) {
+			$df_target = $df->target(type => 'MySQL',
+									 name => $1,
+									 username => $dbcfg->{USER},
+									 password => $dbcfg->{PASS});
+
+		}
 	}
+	
+	if ($opt->{return} eq 'columns') {
+		$ret = join(',', $df_source->columns());
+	}
+	if ($opt->{return} eq 'rows') {
+		$ret = $df_source->rows();
+	}
+
+	undef $df_source;
+	return $ret;
 }
 
 1;
