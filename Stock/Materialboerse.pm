@@ -41,6 +41,7 @@ sub import_components {
 	} else {
 		$row = $sth->fetch();
 		$company_idf = $row->[0];
+		$sth->finish();
 	}
 	
 	# initially mark components as deleted
