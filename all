@@ -6,8 +6,19 @@ for file in *.txt; do
 	echo "Processing file $file"
 	echo "---------------------"
 	echo ""
-	customerid=`basename "$file" .txt`
-	~/datafilter/examples/allstocks "$file" "$customerid"
+	# derive customerid from input file
+	tmpfile=`tempfile`
+	cut -f 2 "$file" | sed -ne '/[0-9A-Za-z]/p' | uniq > $tmpfile
+	lines=`wc -l < $tmpfile`
+
+ 	if [ $lines -gt 1 ]; then
+		echo "No unique customerid, skipping input file"
+ 	else
+		customerid=`cat $tmpfile`
+		echo "Customerid $customerid"
+		~/datafilter/examples/allstocks "$file" "$customerid"
+	fi
+	rm "$tmpfile"
 	echo ""
 done
 
