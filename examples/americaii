@@ -24,6 +24,7 @@ use IO::File;
 use IO::ScalarArray;
 
 use DataFilter::Filter::CSV;
+use Stock::Materialboerse;
 
 unless (@ARGV) {
 	die "$0: no input file specified\n";
@@ -42,15 +43,7 @@ my $filter = new DataFilter::Filter::CSV;
 $filter->param('INPUT_COLUMNS', ['partnumber', undef, undef, 'manufacturer', 'count']);
 $filter->filter($inputhandle, $output);
 
-use XML::Generator;
-my $xml = new XML::Generator (pretty => 1, escape => 1);
-my (@columns, @rows);
-my $col;
+my $mb = new Stock::Materialboerse;
 
-for (my $i = 1; $i < @$output; $i++) {
-	@columns = @{$output->[0]};
-	push (@rows,
-		  $xml->component(map {$col = shift(@columns); $xml->$col($_)} @{$output->[$i]}));
-}
-print $xml->componentlist(@rows);
-
+$mb->key_columns ('partnumber', 'manufacturer');
+$mb->import_components (9, $output);
