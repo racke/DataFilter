@@ -84,9 +84,12 @@ sub datafilter {
 			
 			for (keys %$record) {
 				if ($check->{$_}) {
-					my ($status, $name, $message) = $check->{$_}->($_, $record->{$_});
+					my ($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_});
 					unless ($status) {
 						$errors{$_} = $message;
+					}
+					if (defined $newval) {
+						$record->{$_} = $newval;
 					}
 				}
 				if ($filter->{$_}) {
