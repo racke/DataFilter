@@ -46,10 +46,25 @@ unless ($inputhandle->open($inputfile)) {
 
 my $filter = new DataFilter::Filter::TAB;
 
-$filter->param('INPUT_COLUMNS', ['partnumber', undef, undef, undef, undef, undef, undef, undef, undef, undef, undef, 'manufacturer', 'count', undef]);
+$filter->param('INPUT_COLUMNS', ['partnumber',
+								 undef,
+								 undef,
+								 undef,
+								 undef,
+								 undef,
+								 undef,
+								 undef,
+								 undef,
+								 ['split_regex', qr{^man-part-no\.::?\s*(.*)$}, ['partnumber_org']],
+								  'datecode',
+								  'manufacturer',
+								  'count',
+								  undef]);
+			   
 $filter->filter($inputhandle, $output);
 
 my $mb = new Stock::Materialboerse;
 
 $mb->key_columns ('partnumber', 'manufacturer');
 $mb->import_components ($customerid, $output);
+
