@@ -49,25 +49,36 @@ sub define {
 
 sub convert {
 	my ($self, $record) = @_;
-	my %new_record;
+	my (%new_record, $col, $ref, $fmt, @refcopy);
 
-	if (exists $self->{_required_}) {		
+	if (exists $self->{_required_}) {
+		# check if required fields are existing
 		for (keys (%{$self->{_required_}})) {
 			return unless defined $record->{$_}
 				&& $record->{$_} =~ /\S/;
 		}
 	}
-	if ($self->{DEFINED_ONLY}) {
-		for (keys %{$self->{_defines_}}) {
-			$new_record{$self->{_defines_}->{$_}} = $record->{$_};
-		}
-	} else {
-		%new_record = %$record;
-		for (keys %{$self->{_defines_}}) {
-			$new_record{$self->{_defines_}->{$_}} = delete $new_record{$_};
+
+	for $col (keys %{$self->{_defines_}}) {
+		$ref = $self->{_defines_}->{$col};
+		if (ref($ref) eq 'ARRAY') {
+			@refcopy = @$ref;
+			$fmt = shift @refcopy;
+			$new_record{$col} = sprintf($fmt,
+									   map{$record->{$_}} @refcopy);
+		} else {
+			$new_record{$col} = $record->{$ref};
 		}
 	}
-
+	
+	unless ($self->{DEFINED_ONLY}) {
+		for $col (keys %$record) {
+			unless (exists $new_record{$col}) {
+				$new_record{$col} = $record->{$col};
+			}
+		}
+	}
+	
 	return \%new_record;
 }
 
