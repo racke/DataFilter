@@ -11,6 +11,7 @@ DataFilter/Message/MIME/DBI.pm
 DataFilter/Source/LDAP.pm
 DataFilter/Source/LDIF.pm
 DataFilter/Source/MySQL.pm
+DataFilter/Source/XLS.pm
 MANIFEST
 MANIFEST.SKIP
 Makefile.PL
