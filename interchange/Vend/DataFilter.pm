@@ -58,9 +58,9 @@ sub datafilter {
 
 	if ($df_target) {
 		my $converter = $df->converter(DEFINED_ONLY => 1);
-		my $map = $opt->{map};
-		my $fixed = $opt->{fixed};
-		my $filter = $opt->{filter};
+		my $map = $opt->{map} || {};
+		my $fixed = $opt->{fixed} || {};
+		my $filter = $opt->{filter} || {};
 		
 		my $record;
 
