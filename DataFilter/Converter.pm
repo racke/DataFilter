@@ -49,7 +49,7 @@ sub define {
 
 sub convert {
 	my ($self, $record) = @_;
-	my (%new_record, $col, $ref, $fmt, @refcopy);
+	my (%new_record, $col, $ref, $fmt, @refcopy, %reccopy);
 
 	if (exists $self->{_required_}) {
 		# check if required fields are existing
@@ -61,7 +61,10 @@ sub convert {
 
 	for $col (keys %{$self->{_defines_}}) {
 		$ref = $self->{_defines_}->{$col};
-		if (ref($ref) eq 'ARRAY') {
+		if (ref($ref) eq 'CODE') {
+			%reccopy = %$record;
+			$new_record{$col} = $ref->(\%reccopy);
+		} elsif (ref($ref) eq 'ARRAY') {
 			@refcopy = @$ref;
 			$fmt = shift @refcopy;
 			$new_record{$col} = sprintf($fmt,
