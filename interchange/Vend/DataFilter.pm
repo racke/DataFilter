@@ -14,7 +14,7 @@ use Vend::Data;
 sub datafilter {
 	my ($opt) = @_;
 	my ($tmpfile, $ret);
-	
+
 	my $source = $opt->{source};
 	my $target = $opt->{target};
 	
@@ -47,13 +47,35 @@ sub datafilter {
 	if ($target->{type} eq 'IC') {
 		my $dbref = Vend::Data::database_exists_ref($target->{name});
 		my $dbcfg = $dbref->[0];
-
+		
 		if ($dbcfg->{Class} eq 'DBI' && $dbcfg->{DSN} =~ /^dbi:mysql:(\w+)/) {
 			$df_target = $df->target(type => 'MySQL',
 									 name => $1,
 									 username => $dbcfg->{USER},
 									 password => $dbcfg->{PASS});
 
+		}
+	}
+
+	if ($df_target) {
+		my $converter = $df->converter(DEFINED_ONLY => 1);
+		my $map = $opt->{map};
+		my $fixed = $opt->{fixed};
+		
+		my $record;
+
+		for (keys %$map) {
+			next unless $map->{$_};
+			$converter->define($_, $map->{$_});
+		}
+
+		for (keys %$fixed) {
+			$converter->define($_, \$fixed->{$_});
+		}
+		
+		while ($record = $df_source->enum_records()) {
+			$record = $converter->convert($record);
+			$df_target->add_record($target->{name}, $record);
 		}
 	}
 	
