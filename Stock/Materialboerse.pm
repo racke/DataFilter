@@ -95,7 +95,7 @@ sub import_components {
 			$comphash{deleted} = 0;
 			$dbif->update('component', "idf = $aref->{idf}", %comphash);
 		} else {
-			warn "two many matching components found\n";
+			warn "too many matching components found for condition: " . join(' AND ', @colconds) . "\n";
 		}
 		$sth->finish();
 	}
