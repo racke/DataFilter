@@ -1,4 +1,4 @@
-# Vend::DataFilter - Interchange image helper functions
+# Vend::DataFilter - Interchange connector to DataFilter
 #
 # Copyright (C) 2004 Stefan Hornburg (Racke) <racke@linuxia.de>.
 
@@ -74,6 +74,8 @@ sub datafilter {
 		}
 		
 		while ($record = $df_source->enum_records()) {
+			next unless grep {/\S/} values (%$record);
+			
 			$record = $converter->convert($record);
 			# filters
 			for (keys %$record) {
