@@ -54,5 +54,11 @@ sub list {
 	}
 }
 
+sub data {
+	my ($self, $id) = @_;
+
+	$self->{client}->message_string($id);
+}
+
 1;
 	
