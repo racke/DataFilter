@@ -90,14 +90,14 @@ $filter->param('yearofpurchase', 204, 10);
 $filter->filter($inputhandle, $output);
 
 use XML::Generator;
-my $xml = new XML::Generator (pretty => 1);
+my $xml = new XML::Generator (pretty => 1, escape => 1);
 my (@columns, @rows);
 my $col;
 
 for (my $i = 1; $i < @$output; $i++) {
 	@columns = @{$output->[0]};
 	push (@rows,
-		  $xml->component(map {$col = shift(@columns); $xml->$col($_)} @{$output->[1]}));
+		  $xml->component(map {$col = shift(@columns); $xml->$col($_)} @{$output->[$i]}));
 }
 print $xml->componentlist(@rows);
 
