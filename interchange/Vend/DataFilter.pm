@@ -17,6 +17,7 @@ sub datafilter {
 	my ($tmpfile, $ret);
 	my $source = $opt->{source};
 	my $target = $opt->{target};
+	my $delim = $opt->{delim} || ',';
 	
 	my ($df, $df_source, $df_target);
 	
@@ -105,7 +106,7 @@ sub datafilter {
 	}
 	
 	if ($opt->{return} eq 'columns') {
-		$ret = join(',', $df_source->columns());
+		$ret = join($delim, $df_source->columns());
 	}
 	if ($opt->{return} eq 'rows') {
 		$ret = $df_source->rows();
