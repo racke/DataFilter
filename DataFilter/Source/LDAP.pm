@@ -30,7 +30,9 @@ sub new {
 
 	bless ($self, $class);
 
-	$self->{_ldif_} = new Net::LDAP ($self->{host});
+	unless ($self->{_ldif_} = new Net::LDAP ($self->{host})) {
+		die "$0: failed to concact LDAP server on host $self->{host}: $@\n";
+	}
 
 	if ($self->{username}) {
 		$self->{_ldif_}->bind($self->{username}, password => $self->{password});
