@@ -22,6 +22,7 @@ use strict;
 
 use Net::LDAP::LDIF;
 use Net::LDAP::Entry;
+use Unicode::String qw(utf8);
 
 sub new {
 	my $proto = shift;
@@ -36,14 +37,17 @@ sub new {
 
 sub write_record {
 	my ($self, $record) = @_;
-	my ($entry);
+	my ($entry, $string);
 	
-	use Data::Dumper;
-	print Dumper($record);
+#	use Data::Dumper;
+#	print Dumper($record);
 
 	$entry = new Net::LDAP::Entry();
 	for (keys %$record) {
-		$entry->add($_ => $record->{$_});
+		$string = $record->{$_};
+		$string = Unicode::String::latin1($string);
+#		print "String: $string\n";
+		$entry->add($_ => $string->utf8);
 	}
 	$entry->add('objectclass', ['top', 'person', 'organizationalPerson', 'inetOrgPerson']);
 	$entry->dn("cn=$record->{cn},dc=materialboerse,dc=de");
