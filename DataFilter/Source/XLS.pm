@@ -75,11 +75,21 @@ sub _write_ {
 	my ($self, $sref, $record) = @_;
 	my $col = 0;
 	my $row = $sref->{row};
-	
-	for (keys %$record) {
-		$sref->{obj}->write($row, $col++, $record->{$_});
-	}
 
+	if (ref($record) eq 'ARRAY') {
+		for (@$record) {
+			$sref->{obj}->write($row, $col++, $_);
+		}
+	} elsif ($self->{columns}) {
+		for (@{$self->{columns}}) {
+			$sref->{obj}->write($row, $col++, $record->{$_});
+		}
+	} else {
+		for (keys %$record) {
+			$sref->{obj}->write($row, $col++, $record->{$_});
+		}
+	}
+	
 	$sref->{row} = $row + 1;
 }
 
