@@ -48,9 +48,9 @@ my $filter = new DataFilter::Filter::TAB;
 
 $filter->param('INPUT_COLUMNS', ['partnumber',
 								 undef,
-								 'price',
 								 undef,
 								 undef,
+								 ['split_regex', qr{zus\.\s+Bemerk:\s*(.*)}, ['description']],
 								 undef,
 								 undef,
 								 undef,
