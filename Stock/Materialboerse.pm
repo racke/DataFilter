@@ -68,6 +68,11 @@ sub import_components {
 		$comphash{sell} = 1;
 		$comphash{pricing} = 'rfq';
 		
+		if ($comphash{count} < 1) {
+			warn "partnumber $comphash{partnumber} has count < 1\n";
+			next;
+		}
+			
 		my $sth = $dbif->process ("select * from component where " . join(' AND ', @colconds));
 		if ($sth->rows == 0) {
 			$dbif->insert('component', %comphash);
