@@ -27,6 +27,12 @@ sub new {
 	
 	bless ($self, $class);
 	$self->{_defines_} = {};
+
+	if ($self->{REQUIRED}) {
+		for (split(/\s+/, $self->{REQUIRED})) {
+			$self->{_required_}->{$_} = 1;
+		}
+	}
 	return $self;
 }
 
@@ -44,7 +50,13 @@ sub define {
 sub convert {
 	my ($self, $record) = @_;
 	my %new_record;
-	
+
+	if (exists $self->{_required_}) {		
+		for (keys (%{$self->{_required_}})) {
+			return unless defined $record->{$_}
+				&& $record->{$_} =~ /\S/;
+		}
+	}
 	if ($self->{DEFINED_ONLY}) {
 		for (keys %{$self->{_defines_}}) {
 			$new_record{$self->{_defines_}->{$_}} = $record->{$_};
