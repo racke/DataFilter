@@ -63,6 +63,10 @@ sub target {
 	shift->source(@_);
 }
 
+sub other {
+	shift->source(@_);
+}
+
 sub converter {
 	my ($self, @args) = @_;
 	
