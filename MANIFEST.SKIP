@@ -1,0 +1,8 @@
+^blib(/|$)
+\bCVS\b
+\.gz$
+^MANIFEST\.bak
+^Makefile$
+^Makefile.old$
+^META.yml$
+^pm_to_blib$

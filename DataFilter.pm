@@ -19,13 +19,14 @@
 
 package DataFilter;
 use strict;
-use vars qw(@ISA @EXPORT @EXPORT_OK);
+use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
 use DataFilter::Converter;
 
 require Exporter;
 
 @ISA = qw(Exporter);
+$VERSION = '0.1001';
 
 sub new {
 	my $proto = shift;
