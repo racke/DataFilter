@@ -1,6 +1,6 @@
 # DataFilter::Source::XLS
 #
-# Copyright 2004 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,12 +51,16 @@ sub DESTROY {
 
 sub columns {
 	my ($self, $table) = @_;
-	my ($sheet, @columns);
+	my ($sheet, @columns, $colname);
 	
 	$table ||= 0;
 	$sheet = $self->{_xls_}->{Worksheet}[$table];
 	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
-		push (@columns, $sheet->{Cells}[0][$i]->{Val});
+		$colname = $sheet->{Cells}[0][$i]->{Val};
+		# strip leading and trailing blanks
+		$colname =~ s/^\s+//;
+		$colname =~ s/\s+$//;		
+		push (@columns, $colname);
 	}
 
 	return (@columns);
