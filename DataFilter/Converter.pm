@@ -69,6 +69,8 @@ sub convert {
 			$fmt = shift @refcopy;
 			$new_record{$col} = sprintf($fmt,
 									   map{$record->{$_}} @refcopy);
+		} elsif (ref($ref) eq 'SCALAR') {
+			$new_record{$col} = $$ref;
 		} else {
 			$new_record{$col} = $record->{$ref};
 		}
