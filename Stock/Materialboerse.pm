@@ -60,11 +60,13 @@ sub import_components {
 		if ($sth->rows == 0) {
 			$dbif->insert('component', %comphash);
 		} elsif ($sth->rows == 1) {
+			my $aref = $sth->fetchrow_hashref();
 			$comphash{deleted} = 0;
-			$dbif->update('component', join(' AND ', @colconds), %comphash);
+			$dbif->update('component', "idf = $aref->{idf}", %comphash);
 		} else {
 			warn "two many matching components found\n";
 		}
+		$sth->finish();
 	}
 
 	# delete components no longer in the list for the updates
