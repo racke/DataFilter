@@ -36,12 +36,11 @@ sub new {
 	return $self;
 }
 
-sub source {
+sub configure {
 	my ($self, %parms) = @_;
-	my $source;
-
+	
 	# class name
-	my $class = "DataFilter::Source::$parms{type}";
+	my $class = "DataFilter::Config::$parms{type}";
 
 	eval "require $class";
 	if ($@) {
@@ -49,22 +48,54 @@ sub source {
 	}
 	
 	eval {
-		$source = $class->new(%parms);
+		$self->{_confobj_} = $class->new(%parms);
+		$self->{_configuration_} = $self->{_confobj_}->{_configuration_};
 	};
 
 	if ($@) {
 		die "$0: Failed to create object from $class: $@\n";
 	}
 
-	return $source;
+	return 1;
+}
+
+sub inout {
+	my ($self, $type, %parms) = @_;
+	my ($class, $inout);
+
+	# class name
+	if ($self->{_configuration_}) {
+		$class = "DataFilter::Source::$self->{_configuration_}->{$type}->{type}";
+	} else {
+		$class = "DataFilter::Source::$parms{type}";
+	}
+
+	eval "require $class";
+	if ($@) {
+		die "$0: Failed to load class $class: $@\n";
+	}
+
+	eval {
+		$inout = $class->new($self->{_configuration_} ? %{$self->{_configuration_}->{$type}} : %parms);
+	};
+
+	if ($@) {
+		die "$0: Failed to create object from $class: $@\n";
+	}
+
+	return $inout;
+}
+
+sub source {
+	shift->inout('source', @_)
 }
 
 sub target {
-	shift->source(@_);
+	shift->inout('target', @_);
 }
 
 sub other {
-	shift->source(@_);
+	shift->inout('other', @_);
 }
 
 sub converter {
