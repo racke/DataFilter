@@ -23,7 +23,9 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 require Exporter;
 require Text::CSV_XS;
 
-@ISA = qw(Exporter);
+require DataFilter::Filter::Line;
+
+@ISA = qw(DataFilter::Filter::Line Exporter);
 
 sub new {
 	my $proto = shift;
@@ -46,12 +48,10 @@ sub filter {
 	my ($self, $input, $output) = @_;
 	my $buf = '';
 	my @columns;
-	my $sub;
+	my $func;
 	
-	if ($self->{INPUT_COLUMNS}) {
-		@columns = @{$self->{INPUT_COLUMNS}};
-		push (@$output, [grep {defined $_} @columns]);
-	}
+	$self->prepare_filter($self->{INPUT_COLUMNS}, \@columns, \$func);
+	push (@$output, [@columns]);
 	
 	while (defined ($line = $input->getline())) {
 		# skip empty lines
@@ -60,11 +60,7 @@ sub filter {
 		my @lineitems;
 		my @linearr = split("\t", $line);
 
-		for (my $i = 0; $i < @columns; $i++) {
-			next unless defined $columns[$i];
-			push @lineitems, $linearr[$i];
-		}
-			
+		@lineitems = $func->(\@linearr);
 		push (@$output, \@lineitems);
 	}
 }
