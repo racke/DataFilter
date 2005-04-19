@@ -1,6 +1,6 @@
 # DataFilter::Source::CSV
 #
-# Copyright 2004 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,30 +20,39 @@
 package DataFilter::Source::CSV;
 use strict;
 
-use DBIx::Easy::Import;
+use IO::File;
+use Text::CSV_XS;
 
 sub new {
 	my $proto = shift;
 	my $class = ref ($proto) || $proto;
 	my $self = {@_};
 
+	$self->{columns} = [];
+	
 	bless ($self, $class);
 
 	return $self;
 }
 
+sub _initialize_ {
+	my $self = shift;
+
+	$self->{parser} = new Text::CSV_XS ({'binary' => 1});
+	$self->{fd_input} = new IO::File;
+	$self->{fd_input}->open($self->{name})
+			|| die "$0: couldn't open $self->{name}: $!\n";
+
+	# determine column names
+	$self->get_columns_csv($self->{columns});
+}
 
 sub enum_records {
 	my ($self) = @_;
 	my (@columns, $record, $i);
 	
-	unless ($self->{_csv_}) {
-		$self->{_csv_} = new DBIx::Easy::Import;
-		if ($self->{delim}) {
-			$self->{_csv_}->initialize($self->{name}, "CSV$self->{delim}");
-		} else {
-			$self->{_csv_}->initialize($self->{name}, 'CSV');
-		}
+	unless ($self->{parser}) {
+		$self->_initialize_();
 	}
 
 	if ($self->{_csv_}->get_columns(\@columns)) {
@@ -54,6 +63,40 @@ sub enum_records {
 	}
 
 	return $record;
+}
+
+sub columns {
+	my ($self) = @_;
+
+	unless ($self->{parser}) {
+		$self->_initialize_();
+	}
+	
+	return @{$self->{columns}};
+}
+
+sub get_columns_csv {
+	my ($self, $colref) = @_;
+	my $line;
+	my $msg;
+	my $fd = $self->{fd_input};
+	
+	while (defined ($line = <$fd>)) {
+		if ($self->{parser}->parse($line)) {
+			# csv line completed, delete buffer
+			@$colref = $self->{parser}->fields();
+			$self->{buffer} = '';
+			return @$colref;
+		} else {
+			if (($line =~ tr/"/"/) % 2) {
+			# odd number of quotes, try again with next line
+				$self->{buffer} = $line;
+			} else {
+				$msg = "$0: $.: line not in CSV format: " . $self->{parser}->error_input() . "\n";
+				die ($msg);
+			}
+		}
+	}
 }
 
 1;
