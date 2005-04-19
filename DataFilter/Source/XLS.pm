@@ -91,7 +91,7 @@ sub enum_records {
 
 	$table ||= 0;
 
-	unless ($self->{_xls}) {
+	unless ($self->{_xls_}) {
 	    $self->_parse_($self->{name});
 	}
 	
