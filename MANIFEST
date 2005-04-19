@@ -8,6 +8,7 @@ DataFilter/Filter/Line.pm
 DataFilter/Filter/TAB.pm
 DataFilter/Message/MIME.pm
 DataFilter/Message/MIME/DBI.pm
+DataFilter/Source/CSV.pm
 DataFilter/Source/LDAP.pm
 DataFilter/Source/LDIF.pm
 DataFilter/Source/MySQL.pm
