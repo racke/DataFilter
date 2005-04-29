@@ -57,6 +57,16 @@ sub DESTROY {
 	}
 }
 
+sub tables {
+	my ($self) = @_;
+
+	unless ($self->{_xls_}) {
+	    $self->_parse_($self->{name});
+	}
+
+	return map {$_->{Name}} @{$self->{_xls_}->{Worksheet}};
+}
+
 sub columns {
 	my ($self, $table) = @_;
 	my ($sheet, @columns, $colname);
@@ -129,7 +139,9 @@ sub _parse_ {
 	my ($xls);
 
 	$xls = new Spreadsheet::ParseExcel;
-	$self->{_xls_} = $xls->Parse($xlsfile);
+	unless ($self->{_xls_} = $xls->Parse($xlsfile)) {
+		die "$0: failed to parse $xlsfile\n";
+	}
 }
 
 sub _create_ {
