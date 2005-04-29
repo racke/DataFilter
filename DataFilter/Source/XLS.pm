@@ -31,7 +31,7 @@ sub new {
 	bless ($self, $class);
 
 	$self->{_sheets_} = {};
-
+	
 	if ($self->{columns}) {
 	    if (ref($self->{columns}) eq 'ARRAY') {
 	        $self->{_columns_} = delete $self->{columns};
@@ -90,9 +90,8 @@ sub rows {
 	my ($self, $table) = @_;
 	my ($sheet);
 
-	$table ||= 0;
-	$sheet = $self->{_xls_}->{Worksheet}[$table];
-	return $sheet->{MaxRow};
+	$sheet = $self->_table_($table);
+	return $sheet->{MaxRow} || 0;
 }
 
 sub enum_records {
@@ -142,6 +141,33 @@ sub _parse_ {
 	unless ($self->{_xls_} = $xls->Parse($xlsfile)) {
 		die "$0: failed to parse $xlsfile\n";
 	}
+}
+
+sub _table_ {
+	my ($self, $name) = @_;
+
+	unless ($self->{_xls_}) {
+		$self->_parse_($self->{name});		
+	}
+
+	if (! $name || $name !~ /\S/) {
+		return $self->{_xls_}->{Worksheet}->[0];
+	}
+	
+	if ($name =~ /^\d+$/) {
+		return $self->{_xls_}->{Worksheet}->[$name];
+	}
+	
+	unless ($self->{_tablemap_}) {
+		# create table index
+		my @sheets = @{$self->{_xls_}->{Worksheet}};
+
+		for (my $i = @sheets - 1; $i >= 0; $i--) {
+			$self->{_tablemap_}->{$sheets[$i]->{Name}} = $sheets[$i];
+		}
+	}
+
+	return $self->{_tablemap_}->{$name};
 }
 
 sub _create_ {
