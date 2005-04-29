@@ -29,7 +29,7 @@ sub new {
 	my $self = {@_};
 
 	$self->{columns} = [];
-	
+
 	bless ($self, $class);
 
 	return $self;
@@ -45,6 +45,7 @@ sub _initialize_ {
 
 	# determine column names
 	$self->get_columns_csv($self->{columns});
+	$self->{rows} = 0;
 }
 
 sub enum_records {
@@ -55,11 +56,12 @@ sub enum_records {
 		$self->_initialize_();
 	}
 
-	if ($self->{_csv_}->get_columns(\@columns)) {
+	if ($self->get_columns_csv(\@columns)) {
 		$i = 0;
 		for my $col (@{$self->{columns}}) {
 			$record->{$col} = $columns[$i++];
 		}
+		$self->{rows}++;
 	}
 
 	return $record;
@@ -97,6 +99,12 @@ sub get_columns_csv {
 			}
 		}
 	}
+}
+
+sub rows {
+	my $self = shift;
+	
+	return $self->{rows};
 }
 
 1;
