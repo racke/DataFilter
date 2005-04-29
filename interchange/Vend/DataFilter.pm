@@ -39,6 +39,16 @@ sub datafilter {
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile,
 								 verify => 1);
+	} elsif ($source->{type} eq 'CSV') {
+		if ($source->{repository}) {
+			$tmpfile = $source->{repository};
+		} else {
+			# we need to store the input as temporary file first
+			$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.csv";
+			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
+		}
+		$df_source = $df->source(type => $source->{type},
+								 name => $tmpfile);
 	}
 	
 	unless ($df_source) {
@@ -82,7 +92,7 @@ sub datafilter {
 			$record = $converter->convert($record);
 			# filters
 			my %errors;
-			
+
 			for (keys %$record) {
 				if ($check->{$_}) {
 					my ($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_}, $record);
@@ -102,6 +112,7 @@ sub datafilter {
 				$record->{upload_messages} = ::uneval(\%errors);
 			}
 			$df_target->add_record($target->{name}, $record);
+			undef $record;
 		}
 	}
 	
