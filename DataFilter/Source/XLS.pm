@@ -119,20 +119,16 @@ sub rows {
 
 sub enum_records {
 	my ($self, $table) = @_;
-	my ($sheet, @columns, %record, $cell);
+	my ($obj, $sheet, @columns, %record, $cell);
 
-	$table ||= 0;
-
-	unless ($self->{_xls_}) {
-	    $self->_parse_($self->{name});
-	}
+	$obj = $self->_table_($table);
 	
 	unless ($sheet = $self->{_sheets_}->{$table}) {
 		my $header_row = $self->{header_row} || 0;
 		
 		$sheet
 			= $self->{_sheets_}->{$table}
-				= {obj => $self->{_xls_}->{Worksheet}[$sheet],
+				= {obj => $obj,
 				   row => $header_row + 1, col => 0};
 	}
 
