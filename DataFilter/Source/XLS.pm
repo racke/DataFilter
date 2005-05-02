@@ -69,14 +69,13 @@ sub tables {
 
 sub columns {
 	my ($self, $table, $opt) = @_;
-	my ($sheet, @columns, $colname, $header_row, $last_non_empty);
+	my ($sheet, @columns, $colname, $header_row, $tolower, $last_non_empty);
 
-	return @{$self->{_columns_}} if $self->{_columns_};
-	
 	$sheet = $self->_table_($table);
 
 	$header_row = $self->{header_row} || $opt->{header_row} || 0;
-
+	$tolower = $opt->{tolower} || 0;
+	
 	$last_non_empty = -1;
 	
 	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
@@ -87,11 +86,27 @@ sub columns {
 		if ($colname =~ /\S/) {
 			$last_non_empty = $i;
 		}
+		if ($opt->{tolower}) {
+			$colname = lc($colname);
+		}
 		push (@columns, $colname);
 	}
 
 	# remove empty columns from the end
 	return (@columns[0 .. $last_non_empty]);
+}
+
+sub column_index {
+	my ($self, $table, $colname, $opt) = @_;
+	my (@columns, %column_index);
+
+	@columns = $self->columns($table, $opt);
+
+	for (my $i = @columns - 1; $i >= 0; $i--) {
+		$column_index{$columns[$i]} = $i;
+	}
+
+	return $column_index{$colname};
 }
 
 sub rows {
