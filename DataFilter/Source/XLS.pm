@@ -68,22 +68,30 @@ sub tables {
 }
 
 sub columns {
-	my ($self, $table) = @_;
-	my ($sheet, @columns, $colname);
+	my ($self, $table, $opt) = @_;
+	my ($sheet, @columns, $colname, $header_row, $last_non_empty);
 
 	return @{$self->{_columns_}} if $self->{_columns_};
 	
-	$table ||= 0;
-	$sheet = $self->{_xls_}->{Worksheet}[$table];
+	$sheet = $self->_table_($table);
+
+	$header_row = $self->{header_row} || $opt->{header_row} || 0;
+
+	$last_non_empty = -1;
+	
 	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
-		$colname = $sheet->{Cells}[0][$i]->{Val};
+		$colname = $sheet->{Cells}[$header_row][$i]->{Val};
 		# strip leading and trailing blanks
 		$colname =~ s/^\s+//;
-		$colname =~ s/\s+$//;		
+		$colname =~ s/\s+$//;
+		if ($colname =~ /\S/) {
+			$last_non_empty = $i;
+		}
 		push (@columns, $colname);
 	}
 
-	return (@columns);
+	# remove empty columns from the end
+	return (@columns[0 .. $last_non_empty]);
 }
 
 sub rows {
