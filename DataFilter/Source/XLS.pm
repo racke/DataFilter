@@ -128,10 +128,12 @@ sub enum_records {
 	}
 	
 	unless ($sheet = $self->{_sheets_}->{$table}) {
+		my $header_row = $self->{header_row} || 0;
+		
 		$sheet
 			= $self->{_sheets_}->{$table}
 				= {obj => $self->{_xls_}->{Worksheet}[$sheet],
-				   row => 1, col => 0};
+				   row => $header_row + 1, col => 0};
 	}
 
 	if ($sheet->{row} <= $sheet->{obj}->{MaxRow}) {
