@@ -40,10 +40,11 @@ sub new {
 sub primary_key {
 	my ($self, $table) = @_;
 	my ($tblinfo_ref, @keys, $pri_name);
-	
-	$tblinfo_ref = $self->{_dbif_}->describe_table($table);
-	if (@keys = grep {$_->{Key} eq 'PRI'} @{$tblinfo_ref->{columns}}) {
-		$pri_name = $keys[0]->{Field};
+
+	$self->{_dbif_}->connect();
+	@keys = $self->{_dbif_}->{CONN}->primary_key('', '', $table);
+	if (@keys == 1) {
+		$pri_name = $keys[0];
 	}
 	return $pri_name;
 }
