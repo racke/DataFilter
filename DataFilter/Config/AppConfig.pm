@@ -33,8 +33,11 @@ sub new {
 		open (CFG, $self->{file})
 			|| die "$0: failed to open configuration file $self->{file}: $!\n";
 		$self->{_confobj_}->file (\*CFG);
-		$configuration{source} = {$self->{_confobj_}->varlist('^source_', 1)};
-		$configuration{target} = {$self->{_confobj_}->varlist('^target_', 1)};
+
+		for (qw(source target custom)) {
+			$configuration{$_} = {$self->{_confobj_}->varlist("^${_}_", 1)};
+		}
+
 		close (CFG);
 	}
 

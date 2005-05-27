@@ -118,6 +118,13 @@ sub error {
 	return $self->{_error_};
 }
 
+sub custom_value {
+	my ($self, $name) = @_;
+
+	return $self->{_configuration_}->{custom}->{$name};
+}
+
+
 1;	
 
 
