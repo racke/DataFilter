@@ -1,5 +1,5 @@
-datafilter (0.1001-0.2) unstable; urgency=low
+datafilter (0.1002-1) unstable; urgency=low
 
   * Initial release.
 
- -- Stefan Hornburg (Racke) <racke@linuxia.de>  Tue, 26 Oct 2004 22:14:09 +0200
+ -- Stefan Hornburg (Racke) <racke@linuxia.de>  Fri, 27 May 2005 16:18:14 +0200
