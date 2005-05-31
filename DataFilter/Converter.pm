@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2004 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@ sub new {
 	
 	bless ($self, $class);
 	$self->{_defines_} = {};
-
+	$self->{_options_} = {};
+	
 	if ($self->{REQUIRED}) {
 		for (split(/\s+/, $self->{REQUIRED})) {
 			$self->{_required_}->{$_} = 1;
@@ -38,7 +39,13 @@ sub new {
 
 sub define {
 	my ($self, @args) = @_;
-	my ($source, $target);
+	my ($opt, $source, $target);
+
+	if (ref($args[0]) eq 'HASH') {
+		$opt = shift(@args);
+
+		%$self->{_options_} = {%$self->{_options_}, %$opt};
+	}
 	
 	while (@args) {
 		$source = shift @args;
@@ -50,7 +57,7 @@ sub define {
 sub convert {
 	my ($self, $record) = @_;
 	my (%new_record, $col, $ref, $fmt, @refcopy, %reccopy);
-
+	
 	if (exists $self->{_required_}) {
 		# check if required fields are existing
 		for (keys (%{$self->{_required_}})) {
@@ -59,6 +66,11 @@ sub convert {
 		}
 	}
 
+	if ($self->{_options_}->{prefilter}) {
+		%reccopy = %$record;
+		$self->{_options_}->{prefilter}->(\%reccopy);
+	}
+	
 	for $col (keys %{$self->{_defines_}}) {
 		$ref = $self->{_defines_}->{$col};
 		if (ref($ref) eq 'CODE') {
@@ -83,7 +95,12 @@ sub convert {
 			}
 		}
 	}
-	
+
+	if ($self->{_options_}->{postfilter}) {
+		%reccopy = %$record;
+		$self->{_options_}->{postfilter}->(\%reccopy);
+	}
+
 	return \%new_record;
 }
 
