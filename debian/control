@@ -10,3 +10,10 @@ Architecture: all
 Depends: ${perl:Depends}
 Description: DataFilter Framework
  Framework for filtering data.
+
+Package: libdatafilter-perl-interchange
+Architecture: all
+Depends: ${perl:Depends}, interchange
+Description: Interchange Support files for DataFilter Framework
+ Contains the module Vend::DataFilter and the usertag datafilter to connect
+ Interchange with the DataFilter framework.  

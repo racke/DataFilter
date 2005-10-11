@@ -4,7 +4,7 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=1
+export DH_COMPAT=3
 
 ifndef PERL
 	PERL = /usr/bin/perl
@@ -45,12 +45,12 @@ install: build
 	dh_installdirs
 
 # Add here commands to install the package into debian/tmp.
-	if grep ^install_vendor Makefile; then \
-		$(MAKE) install PREFIX=$(PWD)/debian/tmp/usr; \
-	else \
-		$(MAKE) pure_install DESTDIR=$(PWD)/debian/tmp; \
-	fi
-	touch install-stamp
+	$(MAKE) install PREFIX=$(TMP)/usr
+# Install support files for Interchange
+	mkdir -p $(TMP)/usr/lib/interchange/Vend
+	install interchange/Vend/DataFilter.pm $(TMP)/usr/lib/interchange/Vend
+	mkdir -p $(TMP)/usr/lib/interchange/code/usertag
+	install interchange/usertag/datafilter.tag $(TMP)/usr/lib/interchange/code/usertag
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -73,6 +73,7 @@ binary-arch: build install
 #	dh_installinfo
 #	dh_undocumented dbs_dumptabstruct.1p
 	dh_installchangelogs Changes
+	dh_install --sourcedir=debian/tmp
 #	dh_link
 #	dh_strip
 	dh_compress

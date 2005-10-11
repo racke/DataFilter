@@ -20,5 +20,9 @@ Makefile.PL
 debian/changelog
 debian/control
 debian/copyright
+debian/libdatafilter-perl.install
+debian/libdatafilter-perl-interchange.install
 debian/rules
+interchange/Vend/DataFilter.pm
+interchange/usertag/datafilter.tag
 META.yml                                 Module meta-data (added by MakeMaker)
