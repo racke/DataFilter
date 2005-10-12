@@ -58,14 +58,28 @@ sub datafilter {
 	if ($target->{type} eq 'IC') {
 		my $dbref = Vend::Data::database_exists_ref($target->{name});
 		my $dbcfg = $dbref->[0];
-		
-		if ($dbcfg->{Class} eq 'DBI' && $dbcfg->{DSN} =~ /^dbi:mysql:(\w+)/) {
-			$df_target = $df->target(type => 'MySQL',
-									 name => $1,
-									 username => $dbcfg->{USER},
-									 password => $dbcfg->{PASS});
 
+		if ($dbcfg->{Class} eq 'DBI') {
+			if ($dbcfg->{DSN} =~ /^dbi:mysql:(\w+)/) {
+				$df_target = $df->target(type => 'MySQL',
+										 name => $1,
+										 username => $dbcfg->{USER},
+										 password => $dbcfg->{PASS});
+			} elsif ($dbcfg->{DSN} =~ /^dbi:Pg:dbname=(\w+)/) {
+				$df_target = $df->target(type => 'PostgreSQL',
+										 name => $1,
+										 username => $dbcfg->{USER},
+										 password => $dbcfg->{PASS});
+			}
 		}
+
+		unless ($df_target) {
+			return $df->error();
+		}
+	} elsif ($target->{type} eq 'Memory') {
+		$df_target = $df->target(type => 'Memory',
+								 name => $target->{name},
+								 columns => $target->{columns});
 	}
 
 	if ($df_target) {
@@ -88,14 +102,21 @@ sub datafilter {
 		
 		while ($record = $df_source->enum_records()) {
 			next unless grep {/\S/} values (%$record);
-			
 			$record = $converter->convert($record);
 			# filters
 			my %errors;
 
 			for (keys %$record) {
 				if ($check->{$_}) {
-					my ($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_}, $record);
+					my ($status, $name, $message, $newval);
+
+					if (ref($check->{$_}) eq 'CODE') {
+						# use check provided by Interchange
+						($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_}, $record);
+					} else {
+						($status, $name, $message, $newval) = Vend::Order::do_check("$_=$check->{$_}", $record);
+					}
+					
 					unless ($status) {
 						$errors{$_} = $message;
 					}
@@ -122,7 +143,10 @@ sub datafilter {
 	if ($opt->{return} eq 'rows') {
 		$ret = $df_source->rows();
 	}
-
+	if ($opt->{return} eq 'ref' && $target->{type} eq 'Memory') {
+		%{$opt->{ref}} = %{$df_target->{_cache_}->{$target->{name}}->{data}};
+	}
+	
 	undef $df_source;
 	return $ret;
 }
