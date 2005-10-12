@@ -11,6 +11,7 @@ DataFilter/Message/MIME/DBI.pm
 DataFilter/Source/CSV.pm
 DataFilter/Source/LDAP.pm
 DataFilter/Source/LDIF.pm
+DataFilter/Source/Memory.pm
 DataFilter/Source/MySQL.pm
 DataFilter/Source/PostgreSQL.pm
 DataFilter/Source/XLS.pm
