@@ -1,6 +1,6 @@
 # Vend::DataFilter - Interchange connector to DataFilter
 #
-# Copyright (C) 2004 Stefan Hornburg (Racke) <racke@linuxia.de>.
+# Copyright (C) 2004,2005 Stefan Hornburg (Racke) <racke@linuxia.de>.
 
 package Vend::DataFilter;
 
@@ -13,16 +13,24 @@ use Vend::Data;
 use Vend::Util;
 
 sub datafilter {
-	my ($opt) = @_;
+	my ($function, $opt) = @_;
 	my ($tmpfile, $ret);
 	my $source = $opt->{source};
 	my $target = $opt->{target};
 	my $delim = $opt->{delim} || ',';
 	
-	my ($df, $df_source, $df_target);
+	my ($df, $ct, $sessref, $df_source, $df_target);
 	
 	$df = new DataFilter;
 
+	# default function is 'filter'
+	$function ||= 'filter';
+	
+	# put a new entry into the user session
+	$Vend::Session->{datafilter} ||= {};
+	$ret = $ct = $Vend::Session->{datafilter}->{count} + 1;
+	$sessref = $Vend::Session->{datafilter}->{space}->[$ct] = {errors => 0};
+	
 	if ($source->{name} && $source->{repository}) {
 		Vend::Tags->write_relative_file($source->{repository},
 										\$CGI::file{$source->{name}});
@@ -36,9 +44,15 @@ sub datafilter {
 			$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
 			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
 		}
+		eval {
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile,
 								 verify => 1);
+		};
+		if ($@) {
+			::logError("XLS import failed (" . $df->error() . "): $@");
+			return $df->error();
+		}
 	} elsif ($source->{type} eq 'CSV') {
 		if ($source->{repository}) {
 			$tmpfile = $source->{repository};
@@ -99,6 +113,9 @@ sub datafilter {
 		for (keys %$fixed) {
 			$converter->define($_, \$fixed->{$_});
 		}
+
+		# load order checks
+		Vend::Order::reset_order_vars();
 		
 		while ($record = $df_source->enum_records()) {
 			next unless grep {/\S/} values (%$record);
@@ -131,6 +148,7 @@ sub datafilter {
 			if (keys %errors) {
 				$record->{upload_errors} = scalar(keys %errors);
 				$record->{upload_messages} = ::uneval(\%errors);
+				$sessref->{errors}++;
 			}
 			$df_target->add_record($target->{name}, $record);
 			undef $record;
@@ -140,10 +158,14 @@ sub datafilter {
 	if ($opt->{return} eq 'columns') {
 		$ret = join($delim, $df_source->columns());
 	}
-	if ($opt->{return} eq 'rows') {
+	elsif ($opt->{return} eq 'rows') {
 		$ret = $df_source->rows();
 	}
-	if ($opt->{return} eq 'ref' && $target->{type} eq 'Memory') {
+	elsif ($opt->{return} eq 'errors') {
+		$ret = $sessref->{errors};
+	}
+
+	if ($opt->{ref} && $target->{type} eq 'Memory') {
 		%{$opt->{ref}} = %{$df_target->{_cache_}->{$target->{name}}->{data}};
 	}
 	
