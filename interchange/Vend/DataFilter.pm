@@ -25,10 +25,15 @@ sub datafilter {
 
 	# default function is 'filter'
 	$function ||= 'filter';
+
+	if ($function eq 'columns') {
+		$sessref = $Vend::Session->{datafilter}->{space}->[$Vend::Session->{datafilter}->{count}];
+		return join(',',  @{$sessref->{columns}});
+	}
 	
 	# put a new entry into the user session
 	$Vend::Session->{datafilter} ||= {};
-	$ret = $ct = $Vend::Session->{datafilter}->{count} + 1;
+	$ret = $ct = ++$Vend::Session->{datafilter}->{count};
 	$sessref = $Vend::Session->{datafilter}->{space}->[$ct] = {errors => 0};
 	
 	if ($source->{name} && $source->{repository}) {
@@ -45,9 +50,9 @@ sub datafilter {
 			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
 		}
 		eval {
-		$df_source = $df->source(type => $source->{type},
-								 name => $tmpfile,
-								 verify => 1);
+			$df_source = $df->source(type => $source->{type},
+									 name => $tmpfile,
+									 verify => 1);
 		};
 		if ($@) {
 			::logError("XLS import failed (" . $df->error() . "): $@");
@@ -68,6 +73,9 @@ sub datafilter {
 	unless ($df_source) {
 		return $df->error();
 	}
+
+	# store column names into session
+	$sessref->{columns} = [$df_source->columns()];
 
 	if ($target->{type} eq 'IC') {
 		my $dbref = Vend::Data::database_exists_ref($target->{name});
