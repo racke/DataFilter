@@ -155,7 +155,12 @@ sub datafilter {
 			}
 			if (keys %errors) {
 				$record->{upload_errors} = scalar(keys %errors);
-				$record->{upload_messages} = ::uneval(\%errors);
+				if ($target->{type} eq 'Memory') {
+					# no need for serialization
+					$record->{upload_messages} = \%errors;
+				} else {
+					$record->{upload_messages} = ::uneval(\%errors);
+				}
 				$sessref->{errors}++;
 			}
 			$df_target->add_record($target->{name}, $record);
