@@ -20,6 +20,7 @@
 package DataFilter::Source::XLS;
 use strict;
 
+use Date::Calc;
 use Spreadsheet::ParseExcel;
 use Spreadsheet::WriteExcel;
 
@@ -135,13 +136,20 @@ sub enum_records {
 	if ($sheet->{row} <= $sheet->{obj}->{MaxRow}) {
 		# read row from spreadsheet
 		@columns = $self->columns($table);
+
 		for (my $i = 0; $i < @columns; $i++) {
 			if ($cell = $sheet->{obj}->{Cells}[$sheet->{row}][$i]) {
-				$record{$columns[$i]} = $cell->{Val};
+				if ($cell->{Type} eq 'Date') {
+					# automatically convert numeric value to date string
+					$record{$columns[$i]} = $self->_date_convert_($cell);
+				} else {
+					$record{$columns[$i]} = $cell->{Val};
+				}
 			} else {
 				$record{$columns[$i]} = '';
 			}
 		}
+
 		$sheet->{row}++;
 		return \%record;
 	}
@@ -229,6 +237,18 @@ sub _write_ {
 	}
 	
 	$sref->{row} = $row + 1;
+}
+
+sub _date_convert_ {
+	my ($self, $cell) = @_;
+
+	# convert Excel date to a proper date string, there appear to
+	# be some flaws in Excels calculations, see also Date::Calc docs
+	my ($year,$month,$day, $hour, $min, $sec) =
+		Date::Calc::Add_Delta_DHMS(1899,12,30,0,0,0, int($cell->{Val}), 0, 0, 0);
+	my $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+
+	return $date;
 }
 
 1;
