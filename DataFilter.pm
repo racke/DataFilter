@@ -81,13 +81,15 @@ sub inout {
 	};
 
 	if ($@) {
+		$self->{_error_} = 'DATAFILTER_WRONG_FORMAT';
+		
 		# fatal error
 		die "$0: Failed to create object from $class: $@\n";
 	}
 
 	unless (ref ($inout)) {
 		# error
-		$self->{_error_} = $inout;
+		$self->{_error_} = $inout || 'DATAFILTER_WRONG_FORMAT';
 		return;
 	}
 		
