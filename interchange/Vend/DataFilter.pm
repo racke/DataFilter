@@ -136,9 +136,9 @@ sub datafilter {
 					my ($status, $name, $message, $newval);
 
 					if (ref($check->{$_}) eq 'CODE') {
-						# use check provided by Interchange
 						($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_}, $record);
 					} else {
+						# use check provided by Interchange
 						($status, $name, $message, $newval) = Vend::Order::do_check("$_=$check->{$_}", $record);
 					}
 					
