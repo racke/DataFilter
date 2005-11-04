@@ -37,11 +37,18 @@ sub new {
 
 sub _initialize_ {
 	my $self = shift;
+	my $file;
 
+	if ($self->{file}) {
+		$file = $self->{file};
+	} else {
+		$file = $self->{name};
+	}
+	
 	$self->{parser} = new Text::CSV_XS ({'binary' => 1});
 	$self->{fd_input} = new IO::File;
-	$self->{fd_input}->open($self->{name})
-			|| die "$0: couldn't open $self->{name}: $!\n";
+	$self->{fd_input}->open($file)
+			|| die "$0: failed to open file: $!\n";
 
 	# determine column names
 	$self->get_columns_csv($self->{columns});
