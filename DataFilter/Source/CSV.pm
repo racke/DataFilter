@@ -28,8 +28,12 @@ sub new {
 	my $class = ref ($proto) || $proto;
 	my $self = {@_};
 
-	$self->{columns} = [];
-
+	if ($self->{columns}) {
+		$self->{columns} = [split(/[,\s]/, $self->{columns})];
+	} else {
+		$self->{columns} = [];
+	}
+	
 	bless ($self, $class);
 
 	return $self;
@@ -50,8 +54,10 @@ sub _initialize_ {
 	$self->{fd_input}->open($file)
 			|| die "$0: failed to open file: $!\n";
 
-	# determine column names
-	$self->get_columns_csv($self->{columns});
+	# determine column names if necessary
+	unless (@{$self->{columns}}) {
+		$self->get_columns_csv($self->{columns});
+	}
 	$self->{rows} = 0;
 }
 
