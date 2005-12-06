@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2004 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ sub source {
 }
 
 sub target {
-	shift->inout('target', @_);
+	shift->inout('target', @_, write => 1);
 }
 
 sub other {
