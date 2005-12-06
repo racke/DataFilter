@@ -37,7 +37,7 @@ sub type {
 	my ($ft_type);
 	
 	$ft_type = $self->{ft}->checktype_filename($filename);
-	print "FT_TYPE for filename is $ft_type\n";
+
 	if ($ft_type eq 'application/msword') {
 		# most likely XLS
 		return 'XLS';
