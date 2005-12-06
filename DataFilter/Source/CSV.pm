@@ -28,7 +28,9 @@ sub new {
 	my $class = ref ($proto) || $proto;
 	my $self = {@_};
 
-	if ($self->{columns}) {
+	if (ref($self->{columns}) eq 'ARRAY') {
+		# do nothing
+	} elsif ($self->{columns}) {
 		$self->{columns} = [split(/[,\s]/, $self->{columns})];
 	} else {
 		$self->{columns} = [];
@@ -37,6 +39,14 @@ sub new {
 	bless ($self, $class);
 
 	return $self;
+}
+
+sub DESTROY {
+	my $self = shift;
+
+	if ($self->{write} && $self->{fd_input}) {
+		$self->{fd_input}->close();
+	}
 }
 
 sub _initialize_ {
@@ -49,11 +59,17 @@ sub _initialize_ {
 		$file = $self->{name};
 	}
 	
-	$self->{parser} = new Text::CSV_XS ({'binary' => 1});
+	$self->{parser} = new Text::CSV_XS ({'binary' => 1, eol => "\n"});
 	$self->{fd_input} = new IO::File;
-	$self->{fd_input}->open($file)
-			|| die "$0: failed to open file: $!\n";
 
+	if ($self->{write}) {
+		$self->{fd_input}->open(">$file")
+			|| die "$0: failed to open file for writing: $!\n";
+	} else {
+		$self->{fd_input}->open($file)
+			|| die "$0: failed to open file: $!\n";
+	}
+	
 	# determine column names if necessary
 	unless (@{$self->{columns}}) {
 		$self->get_columns_csv($self->{columns});
@@ -118,6 +134,29 @@ sub rows {
 	my $self = shift;
 	
 	return $self->{rows};
+}
+
+sub add_record {
+	my ($self, $record) = @_;
+	my (@out, $status);
+
+	for ($self->columns()) {
+		push (@out, $record->{$_});
+	}
+
+	if ($self->{rows} == 0) {
+		$status = $self->{parser}->print($self->{fd_input}, [$self->columns()]);
+		unless ($status) {
+			die "$0: error writing columns to CSV file\n";
+		}
+	}
+	
+	$status = $self->{parser}->print($self->{fd_input}, \@out);
+	unless ($status) {
+		die "$0: error writing record to CSV file\n";
+	}
+	
+	$self->{rows}++;
 }
 
 1;
