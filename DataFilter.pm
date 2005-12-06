@@ -114,6 +114,17 @@ sub converter {
 	new DataFilter::Converter(@args);
 }
 
+sub magic {
+	my ($self, @args) = @_;
+
+	unless ($self->{magic}) {
+		require DataFilter::Magic;
+		$self->{magic} = new DataFilter::Magic();
+	}
+
+	$self->{magic}->type(@args);
+}
+
 sub error {
 	my ($self) = @_;
 

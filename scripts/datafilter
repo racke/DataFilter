@@ -8,12 +8,16 @@ use DataFilter;
 my $df = new DataFilter;
 
 my ($input_spec, $output_spec) = @ARGV;
-my ($input, $output, $record);
+my ($input, $output, $type, $record);
 
 if ($input_spec =~ s/^(xls|csv)://i) {
-	$input = $df->source(type => uc($1),
-						 name => $input_spec);
+	$type = uc($1);	
+} else {
+	$type = $df->magic($input_spec);
+	
 }
+
+$input = $df->source(type => $type, name => $input_spec);
 
 if ($output_spec =~ s/^(xls|csv)://i) {
 	$output = $df->target(type => uc($1),
