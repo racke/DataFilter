@@ -1,0 +1,26 @@
+#! /usr/bin/perl
+
+use strict;
+use warnings;
+
+use DataFilter;
+
+my $df = new DataFilter;
+
+my ($input_spec, $output_spec) = @ARGV;
+my ($input, $output, $record);
+
+if ($input_spec =~ s/^(xls|csv)://i) {
+	$input = $df->source(type => uc($1),
+						 name => $input_spec);
+}
+
+if ($output_spec =~ s/^(xls|csv)://i) {
+	$output = $df->target(type => uc($1),
+						  name => $output_spec,
+						  columns => [$input->columns()]);
+}
+
+while ($record = $input->enum_records()) {
+	$output->add_record($record);
+}

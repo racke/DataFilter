@@ -26,4 +26,5 @@ debian/libdatafilter-perl-interchange.install
 debian/rules
 interchange/Vend/DataFilter.pm
 interchange/usertag/datafilter.tag
+scripts/datafilter
 META.yml                                 Module meta-data (added by MakeMaker)
