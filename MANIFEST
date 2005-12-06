@@ -6,6 +6,7 @@ DataFilter/Converter.pm
 DataFilter/Filter/CSV.pm
 DataFilter/Filter/Line.pm
 DataFilter/Filter/TAB.pm
+DataFilter/Magic.pm
 DataFilter/Message/MIME.pm
 DataFilter/Message/MIME/DBI.pm
 DataFilter/Source/CSV.pm

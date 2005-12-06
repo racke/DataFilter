@@ -29,7 +29,7 @@ sub datafilter {
 	if ($function eq 'columns') {
 		$sessref = $Vend::Session->{datafilter}->{space}->[$Vend::Session->{datafilter}->{count}];
 		return join(',',  @{$sessref->{columns}});
-	}
+	}		
 	
 	# put a new entry into the user session
 	$Vend::Session->{datafilter} ||= {};
@@ -39,6 +39,11 @@ sub datafilter {
 	if ($source->{name} && $source->{repository}) {
 		Vend::Tags->write_relative_file($source->{repository},
 										\$CGI::file{$source->{name}});
+	}
+
+	if ($source->{magic}) {
+		# let DataFilter determine file type
+		$source->{type} = $df->magic($source->{repository});
 	}
 	
 	if ($source->{type} eq 'XLS') {
