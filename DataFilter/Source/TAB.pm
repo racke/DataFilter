@@ -142,7 +142,7 @@ sub add_record {
 		print $fd join("\t", $self->columns()), "\n";
 	}
 
-	print $fd $self->{rows}, join("\t", @out), "\n";
+	print $fd join("\t", @out), "\n";
 	
 	$self->{rows}++;
 }
