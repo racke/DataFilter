@@ -73,10 +73,13 @@ sub datafilter {
 		}
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile);
+	} else {
+		Vend::Tags->error({name => 'datafilter', set => 'wrong format'});
+		return;
 	}
 	
 	unless ($df_source) {
-		return $df->error();
+		Vend::Tags->error({name => 'datafilter', set => $df->error()});
 	}
 
 	# store column names into session
