@@ -45,41 +45,41 @@ sub datafilter {
 		# let DataFilter determine file type
 		$source->{type} = $df->magic($source->{repository});
 	}
+
+	unless ($source->{type}) {
+		Vend::Tags->error({name => 'datafilter', set => 'unknown format'});
+		return;
+	}
+	
+	# determining temporary file with input
+	if ($source->{repository}) {
+		$tmpfile = $source->{repository};
+	} else {
+		# we need to store the input as temporary file first
+		$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
+		Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
+	}
+
+	my @extra_opts;
 	
 	if ($source->{type} eq 'XLS') {
-		if ($source->{repository}) {
-			$tmpfile = $source->{repository};
-		} else {
-			# we need to store the input as temporary file first
-			$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
-			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
-		}
-		eval {
-			$df_source = $df->source(type => $source->{type},
-									 name => $tmpfile,
-									 verify => 1);
-		};
-		if ($@) {
-			::logError("XLS import failed (" . $df->error() . "): $@");
-			return $df->error();
-		}
-	} elsif ($source->{type} eq 'CSV') {
-		if ($source->{repository}) {
-			$tmpfile = $source->{repository};
-		} else {
-			# we need to store the input as temporary file first
-			$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.csv";
-			Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
-		}
-		$df_source = $df->source(type => $source->{type},
-								 name => $tmpfile);
+		@extra_opts = (verify => 1);
+	} elsif ($source->{type} eq 'CSV' || $source->{type} eq 'TAB') {
+		# do nothing
 	} else {
 		Vend::Tags->error({name => 'datafilter', set => 'wrong format'});
 		return;
 	}
+
+	eval {
+		$df_source = $df->source(type => $source->{type},
+								 name => $tmpfile,
+								 @extra_opts);
+	};
 	
-	unless ($df_source) {
+	if ($@ || ! $df_source) {
 		Vend::Tags->error({name => 'datafilter', set => $df->error()});
+		return;
 	}
 
 	# store column names into session
