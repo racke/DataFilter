@@ -25,11 +25,15 @@ sub datafilter {
 
 	# default function is 'filter'
 	$function ||= 'filter';
-
+	
 	if ($function eq 'columns') {
 		$sessref = $Vend::Session->{datafilter}->{space}->[$Vend::Session->{datafilter}->{count}];
 		return join(',',  @{$sessref->{columns}});
-	}		
+	} elsif ($function eq 'errors') {
+		Vend::Tags->error({name => 'datafilter', set => "F $function => Session is $Vend::Session->{datafilter}->{count}"});
+		$sessref = $Vend::Session->{datafilter}->{space}->[$Vend::Session->{datafilter}->{count}];
+		return $sessref->{errors};
+	}
 	
 	# put a new entry into the user session
 	$Vend::Session->{datafilter} ||= {};
