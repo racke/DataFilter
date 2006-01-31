@@ -38,7 +38,8 @@ sub type {
 	
 	$ft_type = $self->{ft}->checktype_filename($filename);
 
-	if ($ft_type eq 'application/msword') {
+	if ($ft_type eq 'application/msword'
+		|| $ft_type eq 'application/octet-stream') {
 		# most likely XLS
 		return 'XLS';
 	}
