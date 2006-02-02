@@ -1,10 +1,40 @@
 #! /usr/bin/perl
 
+# datafilter - command line tool for DataFilter suite
+
+# Copyright (C) 2006 Stefan Hornburg (Racke) <racke@linuxia.de> 
+
+# This file is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+
+# This file is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this file; see the file COPYING.  If not, write to the Free
+# Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
 use strict;
 use warnings;
 
+use Getopt::Long;
+
 use DataFilter;
 
+# process commandline parameters
+my %opts;
+my $whandler = $SIG{__WARN__};
+$SIG{__WARN__} = sub {print STDERR "$0: @_";};
+unless (GetOptions (\%opts, 'show-columns')) {
+    exit 1;
+}
+$SIG{__WARN__} = $whandler;
+
+#
 my $df = new DataFilter;
 
 my ($input_spec, $output_spec) = @ARGV;
@@ -19,12 +49,19 @@ if ($input_spec =~ s/^(xls|csv|tab)://i) {
 
 $input = $df->source(type => $type, name => $input_spec);
 
-if ($output_spec =~ s/^(xls|csv|tab)://i) {
+if ($opts{'show-columns'}) {
+	for ($input->columns()) {
+		print "$_\n";
+	}
+}
+
+if (defined $output_spec
+	&& $output_spec =~ s/^(xls|csv|tab)://i) {
 	$output = $df->target(type => uc($1),
 						  name => $output_spec,
 						  columns => [$input->columns()]);
-}
 
-while ($record = $input->enum_records()) {
-	$output->add_record($record);
+	while ($record = $input->enum_records()) {
+		$output->add_record($record);
+	}
 }
