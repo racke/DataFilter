@@ -1,6 +1,6 @@
 # DataFilter::Source::XLS
 #
-# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -80,7 +80,12 @@ sub columns {
 	$last_non_empty = -1;
 	
 	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
-		$colname = $sheet->{Cells}[$header_row][$i]->{Val};
+		if ($self->{noheader}) {
+			$colname = $i + 1;
+		} else {
+			$colname = $sheet->{Cells}[$header_row][$i]->{Val};
+		}
+		
 		# strip leading and trailing blanks
 		$colname =~ s/^\s+//;
 		$colname =~ s/\s+$//;
