@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,9 +30,17 @@ sub new {
 	$self->{_cache_} = {};
 
 	if ($self->{name} && $self->{columns}) {
-		my $tref = $self->{_cache_}->{$self->{name}} = {};
-		my @cols = split(/[,\s]/, $self->{columns});
-		 
+		my ($tref, @cols);
+		
+		$tref = $self->{_cache_}->{$self->{name}} = {};
+
+		if (ref($self->{columns}) eq 'ARRAY') {
+			@cols = @{$self->{columns}};
+		} else {
+			@cols = split(/[,\s]/, $self->{columns});
+		}
+		
+		$self->{table} = $self->{name};
 		$tref->{columns} = \@cols;
 		
 		for (my $i = 0; $i < @cols; $i++) {
@@ -85,9 +93,9 @@ sub add_record {
 			die "$0: invalid column $_ for table $table\n";
 		}
 	}
-
-	$self->{_cache_}->{$table}->{data}->{$record->{$cols[0]}} = $record;
 	
+	$self->{_cache_}->{$table}->{data}->{$record->{$cols[0]}} = $record;
+
 	return $record->{$cols[0]};
 }
 
