@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,11 +33,15 @@ sub new {
 }
 
 sub type {
-	my ($self, $filename) = @_;
+	my ($self, $filename, $typeref) = @_;
 	my ($ft_type);
 	
 	$ft_type = $self->{ft}->checktype_filename($filename);
 
+	if (ref($typeref) eq 'SCALAR') {
+		$$typeref = $ft_type;
+	}
+	
 	if ($ft_type eq 'application/msword'
 		|| $ft_type eq 'application/octet-stream') {
 		# most likely XLS
