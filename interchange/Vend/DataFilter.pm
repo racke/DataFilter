@@ -34,7 +34,21 @@ sub datafilter {
 	my $target = $opt->{target};
 	my $delim = $opt->{delim} || ',';
 	
-	my ($df, $ct, $sessref, $df_source, $df_target);
+	my ($df, $ct, $fmt, $sessref, $df_source, $df_target);
+
+	# sanity checks
+	if ($opt->{ref}) {
+		my $reftype = ref($opt->{ref});
+
+		if ($reftype eq 'HASH') {
+			# check passed
+		} else {
+			$reftype ||= 'scalar value';
+			Vend::Tags->error({name => 'datafilter',
+							   set => "Ref parameter has wrong type ($reftype)"});
+			return;
+		}
+	}
 	
 	$df = new DataFilter;
 
@@ -62,11 +76,19 @@ sub datafilter {
 
 	if ($source->{magic}) {
 		# let DataFilter determine file type
-		$source->{type} = $df->magic($source->{repository});
+		$source->{type} = $df->magic($source->{repository}, \$fmt);
 	}
 
 	unless ($source->{type}) {
-		Vend::Tags->error({name => 'datafilter', set => 'unknown format'});
+		my $msg;
+
+		if ($fmt) {
+			$msg = "Unknown format $fmt";
+		} else {
+			$msg = 'Unknown format';
+		}
+		
+		Vend::Tags->error({name => 'datafilter', set => $msg});
 		return;
 	}
 	
@@ -93,7 +115,7 @@ sub datafilter {
 	eval {
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile,
-								 noheader => $opt->{noheader},
+								 noheader => $source->{noheader},
 								 @extra_opts);
 	};
 	
@@ -127,14 +149,23 @@ sub datafilter {
 			return $df->error();
 		}
 	} elsif ($target->{type} eq 'Memory') {
+		my $columns = $target->{columns} || $sessref->{columns};
+
 		$df_target = $df->target(type => 'Memory',
 								 name => $target->{name},
-								 columns => $target->{columns});
+								 columns => $columns);
 	}
 
 	if ($df_target) {
-		my $converter = $df->converter(DEFINED_ONLY => 1);
-		my $map = $opt->{map} || {};
+		my ($map, $converter);
+
+		if ($map = $opt->{map}) {
+			$converter = $df->converter(DEFINED_ONLY => 1);
+		} else {
+			$map = {};
+			$converter = $df->converter(DEFINED_ONLY => 0);
+		}
+		
 		my $fixed = $opt->{fixed} || {};
 		my $filter = $opt->{filter} || {};
 		my $check = $opt->{check} || {};
@@ -156,9 +187,14 @@ sub datafilter {
 		while ($record = $df_source->enum_records()) {
 			next unless grep {/\S/} values (%$record);
 			$record = $converter->convert($record);
+
 			# filters
 			my %errors;
 
+			if ($opt->{gate} && ! $opt->{gate}->($record)) {
+				next;
+			}
+			
 			for (keys %$record) {
 				if ($check->{$_}) {
 					my ($status, $name, $message, $newval);
