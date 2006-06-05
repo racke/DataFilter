@@ -32,7 +32,7 @@ sub new {
 	if ($self->{name} && $self->{columns}) {
 		my ($tref, @cols);
 		
-		$tref = $self->{_cache_}->{$self->{name}} = {};
+		$tref = $self->{_cache_}->{$self->{name}} = {data => {}};
 
 		if (ref($self->{columns}) eq 'ARRAY') {
 			@cols = @{$self->{columns}};
