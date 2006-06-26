@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,11 +66,17 @@ sub inout {
 
 	# class name
 	if ($self->{_configuration_}) {
-		$class = "DataFilter::Source::$self->{_configuration_}->{$type}->{type}";
+		$class = $self->{_configuration_}->{$type}->{type};
 	} else {
-		$class = "DataFilter::Source::$parms{type}";
+		$class = $parms{type};
 	}
 
+	unless ($class) {
+		die "$0: Source type missing\n";
+	}
+	
+	$class = "DataFilter::Source::$class";
+	
 	eval "require $class";
 	if ($@) {
 		die "$0: Failed to load class $class: $@\n";
