@@ -107,7 +107,13 @@ sub source {
 }
 
 sub target {
-	shift->inout('target', @_, write => 1);
+	my ($self, @args) = @_;
+	my $target = $self->inout('target', @args);
+
+	# the target file/database is writable by default
+	# set write=0 in your configuration to override this setting
+	$target->{write} = 1 unless defined $target->{write};
+	return $target;
 }
 
 sub other {
