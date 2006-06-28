@@ -74,24 +74,27 @@ sub datafilter {
 										\$CGI::file{$source->{name}});
 	}
 
-	if ($source->{magic}) {
-		# let DataFilter determine file type
-		$source->{type} = $df->magic($source->{repository}, \$fmt);
-	}
-
-	unless ($source->{type}) {
-		my $msg;
-
-		if ($fmt) {
-			$msg = "Unknown format $fmt";
-		} else {
-			$msg = 'Unknown format';
+	MAGIC:
+	{
+		if ($source->{magic}) {
+			# let DataFilter determine file type
+			$source->{type} = $df->magic($source->{repository}, \$fmt);
 		}
+
+		unless ($source->{type}) {
+			my $msg;
+
+			if ($fmt) {
+				$msg = "Unknown format $fmt";
+			} else {
+				$msg = 'Unknown format';
+			}
 		
-		Vend::Tags->error({name => 'datafilter', set => $msg});
-		return;
+			Vend::Tags->error({name => 'datafilter', set => $msg});
+			last MAGIC;
+		}
 	}
-	
+
 	# determining temporary file with input
 	if ($source->{repository}) {
 		$tmpfile = $source->{repository};
@@ -128,8 +131,18 @@ sub datafilter {
 	$sessref->{columns} = [$df_source->columns()];
 
 	if ($target->{type} eq 'IC') {
-		my $dbref = Vend::Data::database_exists_ref($target->{name});
-		my $dbcfg = $dbref->[0];
+		my ($dbref, $dbcfg);
+
+		unless ($dbref = Vend::Data::database_exists_ref($target->{name})) {
+			Vend::Tags->error({name => 'datafilter', set => qq{Invalid Interchange data source "$target->{name}"}});
+			return;
+		}
+
+		if (ref($dbref) eq 'ARRAY') {
+			$dbcfg = $dbref->[0];
+		} else {
+			$dbcfg = $dbref->{OBJ}->[0];
+		}
 
 		if ($dbcfg->{Class} eq 'DBI') {
 			if ($dbcfg->{DSN} =~ /^dbi:mysql:(\w+)/) {
@@ -146,7 +159,8 @@ sub datafilter {
 		}
 
 		unless ($df_target) {
-			return $df->error();
+			Vend::Tags->error({name => 'datafilter', set => qq{Invalid Interchange data source "$target->{name}"}});
+			return;
 		}
 	} elsif ($target->{type} eq 'Memory') {
 		my $columns = $target->{columns} || $sessref->{columns};
