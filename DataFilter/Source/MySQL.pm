@@ -125,4 +125,8 @@ sub update_record {
 							%$record);
 }
 
+sub handle {
+	$_->[0]->{_dbif_};
+}
+
 1;
