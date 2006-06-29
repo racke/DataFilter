@@ -195,11 +195,16 @@ sub datafilter {
 			$converter->define($_, \$fixed->{$_});
 		}
 
+		my $skip_records = $source->{skip_records} || 0;
+		
 		# load order checks
 		Vend::Order::reset_order_vars();
 		
 		while ($record = $df_source->enum_records()) {
 			next unless grep {/\S/} values (%$record);
+
+			next if $skip_records-- > 0;
+
 			$record = $converter->convert($record);
 
 			# filters
