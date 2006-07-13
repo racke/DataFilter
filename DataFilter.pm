@@ -79,6 +79,8 @@ sub inout {
 	
 	eval "require $class";
 	if ($@) {
+		$self->{_error_} = 'DATAFILTER_INCOMPLETE_SETUP';
+		
 		die "$0: Failed to load class $class: $@\n";
 	}
 
