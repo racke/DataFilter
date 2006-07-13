@@ -34,6 +34,11 @@ unless (GetOptions (\%opts, 'show-columns')) {
 }
 $SIG{__WARN__} = $whandler;
 
+# sanity check
+unless (@ARGV) {
+	die "$0: missing parameters\n";
+}
+
 #
 my $df = new DataFilter;
 
