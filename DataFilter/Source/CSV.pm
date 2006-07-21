@@ -1,6 +1,6 @@
 # DataFilter::Source::CSV
 #
-# Copyright 2004,2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -73,6 +73,14 @@ sub _initialize_ {
 	# determine column names if necessary
 	unless (@{$self->{columns}}) {
 		$self->get_columns_csv($self->{columns});
+		if ($self->{noheader}) {
+			# save row for next access
+			$self->{buffer} = [@{$self->{columns}}];
+			
+			for (my $i = 0; $i < @{$self->{columns}}; $i++) {
+				$self->{columns}->[$i] = $i + 1;
+			}
+		}
 	}
 	$self->{rows} = 0;
 }
@@ -111,6 +119,13 @@ sub get_columns_csv {
 	my $line;
 	my $msg;
 	my $fd = $self->{fd_input};
+
+	# buffer might contain a row already read
+	if (ref $self->{buffer} eq 'ARRAY') {
+		@$colref = @{$self->{buffer}};
+		$self->{buffer} = '';
+		return @$colref;
+	}
 	
 	while (defined ($line = <$fd>)) {
 		if ($self->{parser}->parse($line)) {
