@@ -56,7 +56,6 @@ sub type {
 			|| die "$0: failed to open $filename\n";
 
 		while (<FILE>) {
-			print "First line of $filename is: $_\n";
 			$tabs = tr/\t/\t/;
 			$colons = tr/,/,/;
 			last;
