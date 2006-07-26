@@ -72,6 +72,17 @@ sub _initialize_ {
 		my @cols;
 		$self->get_columns_tab(\@cols);
 		@{$self->{columns}} = map {s/^\s+//; s/\s+//; $_} @cols;
+		
+		if ($self->{noheader}) {
+			# save row for next access
+			$self->{buffer} = [@{$self->{columns}}];
+
+			for (my $i = 0; $i < @{$self->{columns}}; $i++) {
+				$self->{columns}->[$i] = $i + 1;
+			}
+			exit 0;
+		}
+		
 	}
 	
 	$self->{parser} = 1;
@@ -111,10 +122,17 @@ sub get_columns_tab {
 	my ($self, $colref) = @_;
 	my $line;
 	my $fd = $self->{fd_input};
+
+	# buffer might contain a row already read
+	if (exists $self->{buffer}) {
+		@$colref = @{$self->{buffer}};
+		delete $self->{buffer};
+		return @$colref;
+	}
 	
 	while (defined ($line = <$fd>)) {
 		# skip empty/blank/comment lines
-		next if $line =~ /^\#/; next if $line =~ /^\s*$/;
+		next if $line =~ /^\s*$/;
 		# remove newlines and carriage returns
 		chomp ($line);
 		$line =~ s/\r$//;
