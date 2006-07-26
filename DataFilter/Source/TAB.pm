@@ -80,7 +80,6 @@ sub _initialize_ {
 			for (my $i = 0; $i < @{$self->{columns}}; $i++) {
 				$self->{columns}->[$i] = $i + 1;
 			}
-			exit 0;
 		}
 		
 	}
