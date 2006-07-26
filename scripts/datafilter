@@ -60,13 +60,15 @@ if ($opts{'show-columns'}) {
 	}
 }
 
-if (defined $output_spec
-	&& $output_spec =~ s/^(xls|csv|tab)://i) {
-	$output = $df->target(type => uc($1),
-						  name => $output_spec,
-						  columns => [$input->columns()]);
+if (defined $output_spec) {
+	if ($output_spec =~ s/^(xls|csv|tab)://i
+		|| $output_spec =~ m/\.(xls|csv|tab)$/i) {
+		$output = $df->target(type => uc($1),
+							  name => $output_spec,
+							  columns => [$input->columns()]);
 
-	while ($record = $input->enum_records()) {
-		$output->add_record($record);
+		while ($record = $input->enum_records()) {
+			$output->add_record($record);
+		}
 	}
 }
