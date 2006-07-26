@@ -29,7 +29,7 @@ use DataFilter;
 my %opts;
 my $whandler = $SIG{__WARN__};
 $SIG{__WARN__} = sub {print STDERR "$0: @_";};
-unless (GetOptions (\%opts, 'show-columns')) {
+unless (GetOptions (\%opts, 'show-columns', 'noheader')) {
     exit 1;
 }
 $SIG{__WARN__} = $whandler;
@@ -52,7 +52,8 @@ if ($input_spec =~ s/^(xls|csv|tab)://i) {
 	
 }
 
-$input = $df->source(type => $type, name => $input_spec);
+$input = $df->source(type => $type, name => $input_spec,
+					 noheader => $opts{noheader});
 
 if ($opts{'show-columns'}) {
 	for ($input->columns()) {
