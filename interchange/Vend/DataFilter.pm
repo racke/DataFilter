@@ -72,6 +72,10 @@ sub datafilter {
 	if ($source->{name} && $source->{repository}) {
 		Vend::Tags->write_relative_file($source->{repository},
 										\$CGI::file{$source->{name}});
+		unless (-f $source->{repository}) {
+			Vend::Tags->error({name => 'datafilter', set => "Error writing $source->{repository}: $!"});
+			return;
+		}
 	}
 
 	MAGIC:
