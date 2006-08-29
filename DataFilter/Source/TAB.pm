@@ -61,10 +61,10 @@ sub _initialize_ {
 
 	if ($self->{write}) {
 		$self->{fd_input}->open(">$file")
-			|| die "$0: failed to open file for writing: $!\n";
+			|| die qq{$0: failed to open file "$file" for writing: $! \n};
 	} else {
 		$self->{fd_input}->open($file)
-			|| die "$0: failed to open file: $!\n";
+			|| die qq{$0: failed to open file "$file": $! \n};
 	}
 	
 	# determine column names if necessary
