@@ -31,7 +31,7 @@ sub new {
 	
 	if ($self->{file}) {
 		open (CFG, $self->{file})
-			|| die "$0: failed to open configuration file $self->{file}: $!\n";
+			|| die qq{$0: failed to open configuration file $self->{file}: $! \n};
 		$self->{_confobj_}->file (\*CFG);
 
 		for (qw(source target custom)) {
