@@ -34,10 +34,60 @@ sub new {
 }
 
 
+sub DESTROY {
+	my $self = shift;
+
+	if ($self->{write} && $self->{fd_input}) {
+		$self->{fd_input}->close();
+	}
+}
+
+
+
+sub _initialize_ {
+	my $self = shift;
+	my ($file);
+
+	if ($self->{file}) {
+		$file = $self->{file};
+	} else {
+		$file = $self->{name};
+	}
+	
+	if ($self->{write}) {
+		my ($i, @field_types, @field_lengths, @field_decimals);
+        
+		use DBD::XBase;
+
+		my $numcols = @{$self->{columns}};
+
+		for ($i = 0; $i < $numcols; $i++) { push (@field_types, 'C'); }
+		for ($i = 0; $i < $numcols; $i++) { push (@field_lengths, '255'); }
+		for ($i = 0; $i < $numcols; $i++) { push (@field_decimals, 'undef'); }
+
+		XBase->create("name" => "$file",
+			"field_names"    => $self->{columns},
+			"field_types"    => \@field_types,
+			"field_lengths"  => \@field_lengths,
+			"field_decimals" => \@field_decimals);
+
+	} else {
+		XBase->new("$file");
+	}
+	
+	$self->{parser} = 1;
+}
+
+
+
 sub add_record {
 	my ($self, $table, $record) = @_;
 	my ($sth, $id);
-	
+
+        unless ($self->{parser}) {
+		$self->_initialize_();
+	}
+
 	$self->{_dbif_}->insert($table, %$record);
 
 	return $id;
