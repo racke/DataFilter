@@ -60,15 +60,11 @@ sub _initialize_ {
         
 		my $numcols = @{$self->{columns}};
 
-		for ($i = 0; $i < $numcols; $i++) { push (@field_types, 'C'); }
-		for ($i = 0; $i < $numcols; $i++) { push (@field_lengths, '255'); }
-		for ($i = 0; $i < $numcols; $i++) { push (@field_decimals, 'undef'); }
-
 		XBase->create("name" => "$file",
 			"field_names"    => $self->{columns},
-			"field_types"    => \@field_types,
-			"field_lengths"  => \@field_lengths,
-			"field_decimals" => \@field_decimals);
+			"field_types"    => $self->{field_types} || [('C') x $numcols],
+			"field_lengths"  => $self->{field_lengths} || [('255') x $numcols],
+			"field_decimals" => $self->{field_decimals} || [('undef') x $numcols] );
 
 	} else {
 		XBase->new("$file");
