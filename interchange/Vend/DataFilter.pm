@@ -70,6 +70,7 @@ sub datafilter {
 	$sessref = $Vend::Session->{datafilter}->{space}->[$ct] = {errors => 0};
 	
 	if ($source->{name} && $source->{repository}) {
+		# store file uploaded via HTTP
 		Vend::Tags->write_relative_file($source->{repository},
 										\$CGI::file{$source->{name}});
 		unless (-f $source->{repository}) {
