@@ -20,6 +20,7 @@
 package DataFilter::Source::XBase;
 use strict;
 use DBIx::Easy;
+use DBD::XBase;
 
 sub new {
 	my $proto = shift;
@@ -57,8 +58,6 @@ sub _initialize_ {
 	if ($self->{write}) {
 		my ($i, @field_types, @field_lengths, @field_decimals);
         
-		use DBD::XBase;
-
 		my $numcols = @{$self->{columns}};
 
 		for ($i = 0; $i < $numcols; $i++) { push (@field_types, 'C'); }
