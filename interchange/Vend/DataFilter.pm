@@ -173,6 +173,12 @@ sub datafilter {
 		$df_target = $df->target(type => 'Memory',
 								 name => $target->{name},
 								 columns => $columns);
+	} elsif ($target->{type} eq 'XBase') {
+		my $columns = $target->{columns} || $sessref->{columns};
+		$df_target = $df->target(type => 'XBase',
+					directory => $target->{directory},
+					name => $target->{name},
+					columns => $columns );
 	}
 
 	if ($df_target) {
