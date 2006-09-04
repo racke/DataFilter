@@ -60,12 +60,15 @@ sub _initialize_ {
         
 		my $numcols = @{$self->{columns}};
 
-		XBase->create("name" => "$file",
+		my $newtable = XBase->create("name" => "$self->{directory}/$file",
 			"field_names"    => $self->{columns},
 			"field_types"    => $self->{field_types} || [('C') x $numcols],
 			"field_lengths"  => $self->{field_lengths} || [('255') x $numcols],
 			"field_decimals" => $self->{field_decimals} || [('undef') x $numcols] );
 
+		unless ($newtable) {
+			die "$0: creation of file $file failed\n";
+		}
 	} else {
 		XBase->new("$file");
 	}
