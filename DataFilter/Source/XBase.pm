@@ -70,7 +70,7 @@ sub _initialize_ {
 			die "$0: creation of file $file failed\n";
 		}
 	} else {
-		XBase->new("$file");
+		XBase->new($self->{directory} . "/$file");
 	}
 	
 	$self->{parser} = 1;
