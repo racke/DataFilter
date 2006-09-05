@@ -175,7 +175,6 @@ sub datafilter {
 								 columns => $columns);
 	} elsif ($target->{type} eq 'XBase') {
 		my $columns = $target->{columns} || $sessref->{columns};
-		Vend::Tags->error({name => 'datafilter', set => "XBase1"});
 		$df_target = $df->target(type => 'XBase',
 					directory => $target->{directory},
 					name => $target->{name},
@@ -211,7 +210,6 @@ sub datafilter {
 		
 		# load order checks
 		Vend::Order::reset_order_vars();
-		Vend::Tags->error({name => 'datafilter', set => "XBase2"});
 		
 		while ($record = $df_source->enum_records()) {
 			next unless grep {/\S/} values (%$record);
@@ -226,10 +224,8 @@ sub datafilter {
 			if ($opt->{gate} && ! $opt->{gate}->($record)) {
 				next;
 			}
-		 	Vend::Tags->error({name => 'datafilter', set => "XBase3"});
 			
 			for (keys %$record) {
-		 		Vend::Tags->error({name => 'datafilter', set => "XBase4"});
 				if ($check->{$_}) {
 					my ($status, $name, $message, $newval);
 
