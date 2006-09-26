@@ -178,7 +178,10 @@ sub datafilter {
 		$df_target = $df->target(type => 'XBase',
 					directory => $target->{directory},
 					name => $target->{name},
-					columns => $columns );
+					columns => $columns,
+					field_types => $target->{field_types},
+					field_lengths => $target->{field_lengths},
+					field_decimals => $target->{field_decimals} );
 	}
 
 	if ($df_target) {
