@@ -26,7 +26,7 @@ use DataFilter::Converter;
 require Exporter;
 
 @ISA = qw(Exporter);
-$VERSION = '0.1001';
+$VERSION = '0.1005';
 
 sub new {
 	my $proto = shift;

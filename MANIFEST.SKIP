@@ -1,5 +1,6 @@
 ^blib(/|$)
 \bCVS\b
+(^|/)\.cvsignore$
 \.gz$
 ^MANIFEST\.bak
 ^Makefile$

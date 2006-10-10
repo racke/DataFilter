@@ -18,16 +18,16 @@ DataFilter/Source/PostgreSQL.pm
 DataFilter/Source/TAB.pm
 DataFilter/Source/XBase.pm
 DataFilter/Source/XLS.pm
-MANIFEST
-MANIFEST.SKIP
-Makefile.PL
 debian/changelog
 debian/control
 debian/copyright
-debian/libdatafilter-perl.install
 debian/libdatafilter-perl-interchange.install
+debian/libdatafilter-perl.install
 debian/rules
-interchange/Vend/DataFilter.pm
 interchange/usertag/datafilter.tag
+interchange/Vend/DataFilter.pm
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
 scripts/datafilter
 META.yml                                 Module meta-data (added by MakeMaker)
