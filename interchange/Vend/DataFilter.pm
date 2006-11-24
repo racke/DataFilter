@@ -250,6 +250,10 @@ sub datafilter {
 					$record->{$_} = $filter->{$_}->($record->{$_});
 				}
 			}
+			if ($opt->{postfilter}) {
+				$record = $opt->{postfilter}->($record);
+			}
+
 			if (keys %errors) {
 				$record->{upload_errors} = scalar(keys %errors);
 				if ($target->{type} eq 'Memory') {
