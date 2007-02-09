@@ -81,8 +81,10 @@ sub column_index {
 sub enum_records {
 	my ($self, $table) = @_;
 	my ($key, $record);
+
+	$table ||= $self->{table};
 	
-	unless ($self->{enum_keys} eq 'ARRAY') {
+	unless (ref($self->{enum_keys}) eq 'ARRAY') {
 		$self->{enum_keys} = [keys(%{$self->{_cache_}->{$table}->{data}})];
 	}
 
