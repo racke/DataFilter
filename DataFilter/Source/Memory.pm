@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@ sub new {
 	bless ($self, $class);
 
 	$self->{_cache_} = {};
-
+	
 	if ($self->{name} && $self->{columns}) {
-		my ($tref, @cols);
-		
-		$tref = $self->{_cache_}->{$self->{name}} = {data => {}};
+		my ($tref, @cols, $data);
+
+		$tref = $self->{_cache_}->{$self->{name}} = {data => $self->{data} || {}};
 
 		if (ref($self->{columns}) eq 'ARRAY') {
 			@cols = @{$self->{columns}};
@@ -47,7 +47,7 @@ sub new {
 			$tref->{column_index}->{$cols[$i]} = $i;
 		}
 	}
-	
+
 	return $self;
 }
 
@@ -76,6 +76,21 @@ sub column_index {
 
 	$table ||= $self->{table};
 	return $self->{_cache_}->{$table}->{column_index}->{$column};
+}
+
+sub enum_records {
+	my ($self, $table) = @_;
+	my ($key, $record);
+	
+	unless ($self->{enum_keys} eq 'ARRAY') {
+		$self->{enum_keys} = [keys(%{$self->{_cache_}->{$table}->{data}})];
+	}
+
+	if ($key = pop(@{$self->{enum_keys}})) {
+		return $self->{_cache_}->{$table}->{data}->{$key};
+	}
+
+	return;
 }
 
 sub add_record {
