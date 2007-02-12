@@ -1,6 +1,6 @@
 # Vend::DataFilter - Interchange connector to DataFilter
 #
-# Copyright (C) 2004,2005,2006 Stefan Hornburg (Racke) <racke@linuxia.de>.
+# Copyright (C) 2004,2005,2006,2007 Stefan Hornburg (Racke) <racke@linuxia.de>.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -115,6 +115,13 @@ sub datafilter {
 		@extra_opts = (verify => 1);
 	} elsif ($source->{type} eq 'CSV' || $source->{type} eq 'TAB') {
 		# do nothing
+	} elsif ($source->{type} eq 'Memory') {
+		if (ref($source->{columns}) ne 'ARRAY') {
+			@extra_opts = (columns => [split(/\s*,\s*/, $source->{columns})]);
+		} else {
+			@extra_opts = (columns => $source->{columns});
+		}
+		push (@extra_opts, data => $source->{data});
 	} else {
 		Vend::Tags->error({name => 'datafilter', set => 'wrong format'});
 		return;
@@ -167,6 +174,13 @@ sub datafilter {
 			Vend::Tags->error({name => 'datafilter', set => qq{Invalid Interchange data source "$target->{name}"}});
 			return;
 		}
+	} elsif ($target->{type} eq 'CSV') {
+		my $columns = $target->{columns} || $sessref->{columns};
+
+		$df_target = $df->target(type => 'CSV',
+								 name => $target->{name},
+								 columns => $columns,
+								 write => 1);
 	} elsif ($target->{type} eq 'Memory') {
 		my $columns = $target->{columns} || $sessref->{columns};
 
