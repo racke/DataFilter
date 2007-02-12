@@ -196,6 +196,11 @@ sub datafilter {
 					field_types => $target->{field_types},
 					field_lengths => $target->{field_lengths},
 					field_decimals => $target->{field_decimals} );
+	} elsif ($target->{type} eq 'XLS') {
+		my $columns = $target->{columns} || $sessref->{columns};
+		$df_target = $df->target(type => 'XLS',
+								 name => $target->{name},
+								 columns => $columns);
 	}
 
 	if ($df_target) {
@@ -281,6 +286,9 @@ sub datafilter {
 			$df_target->add_record($target->{name}, $record);
 			undef $record;
 		}
+	} else {
+		Vend::Tags->error({name => 'datafilter', set => qq{Setup for target $target->{name} of type $target->{type} failed}});
+		return;
 	}
 	
 	if ($opt->{return} eq 'columns') {
