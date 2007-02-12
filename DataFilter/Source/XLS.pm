@@ -1,6 +1,6 @@
 # DataFilter::Source::XLS
 #
-# Copyright 2004,2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ sub new {
 	    if (ref($self->{columns}) eq 'ARRAY') {
 	        $self->{_columns_} = delete $self->{columns};
 	    } else {
-		$self->{_columns_} = [split(/\s*,\s*/, delete $self->{columns})];
+			$self->{_columns_} = [split(/\s*,\s*/, delete $self->{columns})];
 	    }
 	}
 		
@@ -214,8 +214,18 @@ sub _create_ {
 	}
 	
 	unless ($self->{_sheets_}->{$sheet}) {
-		$self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet();
+		# create worksheet
+		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet();
 		$self->{_sheets_}->{$sheet}->{row} = 0;
+
+		if ($self->{_columns_} && ! $self->{noheader}) {
+			# add headers
+			my $col = 0;
+			for (@{$self->{_columns_}}) {
+				$obj->write(0, $col++, $_);
+			}
+			$self->{_sheets_}->{$sheet}->{row} = 1;
+		}
 		$self->{_sheets_}->{$sheet}->{col} = 0;
 	}
 
