@@ -1,6 +1,6 @@
 # DataFilter::Source::CSV
 #
-# Copyright 2004,2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -152,8 +152,12 @@ sub rows {
 }
 
 sub add_record {
-	my ($self, $record) = @_;
+	my ($self, $table, $record) = @_;
 	my (@out, $status);
+
+	unless ($self->{parser}) {
+		$self->_initialize_();
+	}
 
 	for ($self->columns()) {
 		push (@out, $record->{$_});
