@@ -217,7 +217,8 @@ sub _create_ {
 		# create worksheet
 		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet();
 		$self->{_sheets_}->{$sheet}->{row} = 0;
-
+		$self->{_sheets_}->{$sheet}->{sheet} = $sheet;
+		
 		if ($self->{_columns_} && ! $self->{noheader}) {
 			# add headers
 			my $col = 0;
@@ -241,13 +242,14 @@ sub _write_ {
 		for (@$record) {
 			$sref->{obj}->write($row, $col++, $_);
 		}
-	} elsif ($self->{columns}) {
-		for (@{$self->{columns}}) {
+	} elsif ($self->{_columns_}) {
+		for (@{$self->{_columns_}}) {
 			$sref->{obj}->write($row, $col++, $record->{$_});
 		}
 	} else {
 		for (keys %$record) {
-			$sref->{obj}->write($row, $col++, $record->{$_});
+			$col = $self->column_index($sref->{sheet}, $_);
+			$sref->{obj}->write($row, $col, $record->{$_});
 		}
 	}
 	
