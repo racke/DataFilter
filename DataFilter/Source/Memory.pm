@@ -79,13 +79,19 @@ sub column_index {
 }
 
 sub enum_records {
-	my ($self, $table) = @_;
+	my ($self, $table, $opt) = @_;
 	my ($key, $record);
 
 	$table ||= $self->{table};
 	
 	unless (ref($self->{enum_keys}) eq 'ARRAY') {
-		$self->{enum_keys} = [keys(%{$self->{_cache_}->{$table}->{data}})];
+		my $data = $self->{_cache_}->{$table}->{data};
+		
+		if ($opt->{order}) {
+			$self->{enum_keys} = [sort {$data->{$a}->{$opt->{order}} <=> $data->{$b}->{$opt->{order}}} keys %$data];
+		} else {
+			$self->{enum_keys} = keys %$data;
+		}
 	}
 
 	if ($key = pop(@{$self->{enum_keys}})) {

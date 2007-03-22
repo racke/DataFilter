@@ -233,7 +233,7 @@ sub datafilter {
 		# load order checks
 		Vend::Order::reset_order_vars();
 		
-		while ($record = $df_source->enum_records()) {
+		while ($record = $df_source->enum_records('', {order => $source->{order}})) {
 			next unless grep {/\S/} values (%$record);
 
 			next if $skip_records-- > 0;
