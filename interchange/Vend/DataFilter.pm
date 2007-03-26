@@ -142,6 +142,13 @@ sub datafilter {
 	# store column names into session
 	$sessref->{columns} = [$df_source->columns()];
 
+	# only columns requested
+	if ($opt->{return} eq 'columns') {
+		$ret = join($delim, $df_source->columns());
+		undef $df_source;
+		return $ret;
+	}
+	
 	if ($target->{type} eq 'IC') {
 		my ($dbref, $dbcfg);
 
@@ -291,10 +298,7 @@ sub datafilter {
 		return;
 	}
 	
-	if ($opt->{return} eq 'columns') {
-		$ret = join($delim, $df_source->columns());
-	}
-	elsif ($opt->{return} eq 'rows') {
+	if ($opt->{return} eq 'rows') {
 		$ret = $df_source->rows();
 	}
 	elsif ($opt->{return} eq 'errors') {
