@@ -91,7 +91,10 @@ sub columns {
 		$colname =~ s/\s+$//;
 		if ($colname =~ /\S/) {
 			$last_non_empty = $i;
+		} else {
+			$colname = '';
 		}
+		
 		if ($opt->{tolower}) {
 			$colname = lc($colname);
 		}
