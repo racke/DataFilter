@@ -253,8 +253,14 @@ sub datafilter {
 			if ($opt->{gate} && ! $opt->{gate}->($record)) {
 				next;
 			}
+
+			my @cols = (keys %$record);
+
+			if ($opt->{priority}) {
+				@cols = sort {$opt->{priority}->{$b} <=> $opt->{priority}->{$a}} @cols;
+			}
 			
-			for (keys %$record) {
+			for (@cols) {
 				if ($check->{$_}) {
 					my ($status, $name, $message, $newval);
 
