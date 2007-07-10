@@ -101,7 +101,10 @@ sub datafilter {
 	}
 
 	# determining temporary file with input
-	if ($source->{repository}) {
+	if ($source->{type} eq 'Memory') {
+		# temporary file is pure virtual
+		$tmpfile = $source->{name};
+	} elsif ($source->{repository}) {
 		$tmpfile = $source->{repository};
 	} else {
 		# we need to store the input as temporary file first
