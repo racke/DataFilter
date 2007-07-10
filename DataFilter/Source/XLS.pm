@@ -213,7 +213,9 @@ sub _create_ {
 	$xlsfile ||= $self->{name};
 	
 	unless ($self->{_xls_}) {
-		$self->{_xls_} = new Spreadsheet::WriteExcel($xlsfile);
+		unless ($self->{_xls_} = new Spreadsheet::WriteExcel($xlsfile)) {
+			die "$0: spreadsheet $xlsfile failed to create: $!\n";
+		}
 	}
 	
 	unless ($self->{_sheets_}->{$sheet}) {
