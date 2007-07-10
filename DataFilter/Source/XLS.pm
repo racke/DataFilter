@@ -40,7 +40,17 @@ sub new {
 			$self->{_columns_} = [split(/\s*,\s*/, delete $self->{columns})];
 	    }
 	}
-		
+
+	if ($self->{column_types}) {
+		if (ref($self->{column_types}) eq 'ARRAY') {
+			$self->{_column_types_} = delete $self->{column_types};
+		} else {
+			$self->{_column_types_} = [split(/\s*,\s*/, delete $self->{column_types})];
+		}
+	} else {
+		$self->{_column_types_} = [];
+	}
+
 	if ($self->{verify}) {
 		unless ($self->_parse_($self->{name})) {
 			return 'DATAFILTER_WRONG_FORMAT';
@@ -232,6 +242,7 @@ sub _create_ {
 			}
 			$self->{_sheets_}->{$sheet}->{row} = 1;
 		}
+
 		$self->{_sheets_}->{$sheet}->{col} = 0;
 	}
 
@@ -242,14 +253,18 @@ sub _write_ {
 	my ($self, $sref, $record) = @_;
 	my $col = 0;
 	my $row = $sref->{row};
-
+	
 	if (ref($record) eq 'ARRAY') {
 		for (@$record) {
 			$sref->{obj}->write($row, $col++, $_);
 		}
 	} elsif ($self->{_columns_}) {
 		for (@{$self->{_columns_}}) {
-			$sref->{obj}->write($row, $col++, $record->{$_});
+			if ($self->{_column_types_}->[$col] eq 'text') {
+				$sref->{obj}->write_string($row, $col++, $record->{$_});	
+			} else {
+				$sref->{obj}->write($row, $col++, $record->{$_});
+			}
 		}
 	} else {
 		for (keys %$record) {
