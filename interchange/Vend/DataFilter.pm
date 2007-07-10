@@ -210,7 +210,8 @@ sub datafilter {
 		my $columns = $target->{columns} || $sessref->{columns};
 		$df_target = $df->target(type => 'XLS',
 								 name => $target->{name},
-								 columns => $columns);
+								 columns => $columns,
+								 column_types => $target->{column_types});
 	}
 
 	if ($df_target) {
@@ -297,6 +298,7 @@ sub datafilter {
 				} else {
 					$record->{upload_messages} = ::uneval(\%errors);
 				}
+				::logError("Errors: " . $record->{upload_messages});
 				$sessref->{errors}++;
 			}
 			$df_target->add_record($target->{name}, $record);
