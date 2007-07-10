@@ -24,15 +24,34 @@ sub new {
 	my $proto = shift;
 	my $class = ref ($proto) || $proto;
 	my $self = {@_};
-
+	my $tref = {};
+	
 	bless ($self, $class);
 
 	$self->{_cache_} = {};
-	
-	if ($self->{name} && $self->{columns}) {
-		my ($tref, @cols, $data);
 
-		$tref = $self->{_cache_}->{$self->{name}} = {data => $self->{data} || {}};
+	if ($self->{name}) {
+		if ($self->{data}) {
+			my $r = ref($self->{data});
+
+			if ($r eq 'HASH') {
+				$tref->{hash} = 1;
+				$tref->{data} = $self->{data};
+			} elsif ($r eq 'ARRAY') {
+				$tref->{hash} = 0;
+				$tref->{data} = $self->{data};
+				$tref->{current_row} = 0;
+			}
+		} else {
+			$tref->{hash} = 1;
+			$tref->{data} = {};
+		}
+
+		$self->{_cache_}->{$self->{name}} = $tref;
+	}
+
+	if ($self->{name} && $self->{columns}) {
+		my (@cols, $data);
 
 		if (ref($self->{columns}) eq 'ARRAY') {
 			@cols = @{$self->{columns}};
@@ -80,25 +99,36 @@ sub column_index {
 
 sub enum_records {
 	my ($self, $table, $opt) = @_;
-	my ($key, $record);
+	my ($key, $record, $tref);
 
 	$table ||= $self->{table};
-	
-	unless (ref($self->{enum_keys}) eq 'ARRAY') {
-		my $data = $self->{_cache_}->{$table}->{data};
+	$tref = $self->{_cache_}->{$table};
+
+	if ($tref->{hash}) {
+		# data as hash reference
+		unless (ref($self->{enum_keys}) eq 'ARRAY') {
+			my $data = $self->{_cache_}->{$table}->{data};
 		
-		if ($opt->{order}) {
-			$self->{enum_keys} = [sort {$data->{$a}->{$opt->{order}} <=> $data->{$b}->{$opt->{order}}} keys %$data];
-		} else {
-			$self->{enum_keys} = keys %$data;
+			if ($opt->{order}) {
+				$self->{enum_keys} = [sort {$data->{$a}->{$opt->{order}} <=> $data->{$b}->{$opt->{order}}} keys %$data];
+			} else {
+				$self->{enum_keys} = keys %$data;
+			}
 		}
+			
+		if ($key = pop(@{$self->{enum_keys}})) {
+			$record = $self->{_cache_}->{$table}->{data}->{$key};
+		}
+	} else {
+		# data as array reference
+		if ($tref->{current_row} >= @{$tref->{data}}) {
+			return;
+		}
+
+		$record = $tref->{data}->[$tref->{current_now}++]; 
 	}
 
-	if ($key = pop(@{$self->{enum_keys}})) {
-		return $self->{_cache_}->{$table}->{data}->{$key};
-	}
-
-	return;
+	return $record;
 }
 
 sub add_record {
