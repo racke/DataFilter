@@ -15,6 +15,7 @@ DataFilter/Source/LDIF.pm
 DataFilter/Source/Memory.pm
 DataFilter/Source/MySQL.pm
 DataFilter/Source/PostgreSQL.pm
+DataFilter/Source/SQL.pm
 DataFilter/Source/TAB.pm
 DataFilter/Source/XBase.pm
 DataFilter/Source/XLS.pm

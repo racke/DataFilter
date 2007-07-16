@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,11 @@
 package DataFilter::Source::PostgreSQL;
 use strict;
 use DBIx::Easy;
+
+use DataFilter::Source::SQL;
+
+use vars qw(@ISA);
+@ISA = qw/DataFilter::Source::SQL/;
 
 sub new {
 	my $proto = shift;
@@ -81,13 +86,15 @@ sub hash_records {
 
 sub record {
 	my ($self, $table, $key) = @_;
-	my ($pri_name, $sth, $href);
+	my ($pri_name, $sth, $href, $key_string);
 
 	unless ($pri_name = $self->primary_key($table)) {
 		die "$0: no primary key for table $table\n";
 	}
+
+	$key_string = $self->{_dbif_}->quote($key);
 	
-	$sth = $self->{_dbif_}->process("select * from $table where $pri_name = '$key'");
+	$sth = $self->{_dbif_}->process("select * from $table where $pri_name = $key_string");
 	if ($sth->rows()) {
 		$href = $sth->fetchrow_hashref();
 		$sth->finish();
