@@ -63,7 +63,7 @@ sub columns {
 
 sub enum_records {
 	my ($self, $table, $limit) = @_;
-	my $sth;
+	my ($sth, $ref);
 	my $limitstr = $limit ? " limit $limit" : '';
 
 	$table ||= $self->{table};
@@ -73,7 +73,12 @@ sub enum_records {
 		$self->{_enums_}->{$table} = $sth;
 	}
 
-	return $sth->fetchrow_hashref();
+	if ($ref = $sth->fetchrow_hashref()) {
+		return $ref;
+	}
+
+	delete $self->{_enums_}->{$table};
+	return;
 }
 
 sub hash_records {
