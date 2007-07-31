@@ -28,5 +28,17 @@ sub purge {
 	$self->{_dbif_}->delete($table);
 }
 
+sub serial {
+	my ($self, $table, $sequence) = @_;
+
+	$self->{_dbif_}->serial($table, $sequence);
+}
+
+sub delete {
+	my ($self, $table, $conditions) = @_;
+
+	$self->{_dbif_}->delete($table, $conditions);
+}
+	
 1;
 	
