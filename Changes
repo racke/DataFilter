@@ -1,3 +1,8 @@
+Tue Oct 16 13:49:23 2007 CEST
+(DataFilter): automatic type detection and unpacking of ZIP archives
+(XBase): new methods rows, enum_records; default to first "table"
+(Vend::DataFilter): support XBase source
+
 Tue Oct 16 12:17:19 2007 CEST
 (XBase): new methods tables, columns; recognize name parameter
 
