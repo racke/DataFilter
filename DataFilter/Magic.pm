@@ -31,7 +31,11 @@ sub new {
 	$self->{ft} = new File::MMagic();
 
 	# add magic entries
+	# - DBase 3 data file
 	$self->{ft}->addMagicEntry(join("\t", 0, 'byte', '', '0x03', 'application/x-dbf'));
+	# - self extracting ZIP archives
+	$self->{ft}->addMagicEntry(join("\t", 0, 'string', 'MZ', '', 'application/ms-dos-executable'));
+
 	bless ($self, $class);
 }
 
@@ -47,8 +51,9 @@ sub type {
 		$$typeref = $ft_type;
 	}
 
-	# handle encodings first
-	if ($ft_type eq 'application/x-zip') {
+	# handle encodings first (second alternative is a big kludge)
+	if ($ft_type eq 'application/x-zip'
+	   || $ft_type eq 'application/ms-dos-executable') {
 		return 'ZIP';
 	}
 
