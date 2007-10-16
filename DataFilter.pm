@@ -21,6 +21,10 @@ package DataFilter;
 use strict;
 use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
+use Archive::Zip qw(:ERROR_CODES);
+use File::Basename;
+use File::Temp qw(tempdir);
+
 use DataFilter::Converter;
 
 require Exporter;
@@ -62,7 +66,7 @@ sub configure {
 
 sub inout {
 	my ($self, $type, %parms) = @_;
-	my ($class, $inout);
+	my ($class, $inout, $tmpdir);
 
 	# class name
 	if ($self->{_configuration_}) {
@@ -71,8 +75,49 @@ sub inout {
 		$class = $parms{type};
 	}
 
+	if (! $class && -f $parms{name}) {
+		# try magic detection
+		my ($magic, $mimetype);
+		
+		require DataFilter::Magic;
+		$magic = new DataFilter::Magic;
+		$class = $magic->type($parms{name}, \$mimetype);
+		
+		if ($class eq 'ZIP') {
+			# unpack file and rerun magic detection
+			my ($zip, $status, $mname, $mfilename, @frags);
+		
+			$zip = new Archive::Zip;
+
+			if (($status = $zip->read($parms{name})) == AZ_OK) {
+				# zip file, proceed if there is a single member
+				if ($zip->numberOfMembers() == 1) {
+					# extract file in temporary directory
+					$tmpdir = tempdir(CLEANUP => 0);
+					$mname = ($zip->memberNames())[0];
+					@frags = split('/', $mname);
+					$mfilename = join('/', $tmpdir, pop(@frags));
+					$parms{origname} = $parms{name};
+					$parms{name} = $mfilename;
+					if (($status = $zip->extractMember($mname, $mfilename)) == AZ_OK) {
+						# now run additional detection
+						$class = $magic->type($mfilename, \$mimetype);
+					} else {
+						die "Error while extracting member\n";
+					}
+				}
+			} else {
+				warn("Cannot read ZIP file: $status");
+			}
+		}
+	}		
+	
 	unless ($class) {
 		die "$0: Source type missing\n";
+	}
+
+	if ($class =~ /\W/) {
+		die "$0: Invalid type $class\n";
 	}
 	
 	$class = "DataFilter::Source::$class";
@@ -130,7 +175,8 @@ sub converter {
 
 sub magic {
 	my ($self, @args) = @_;
-
+	my $type;
+	
 	unless ($self->{magic}) {
 		require DataFilter::Magic;
 		$self->{magic} = new DataFilter::Magic();

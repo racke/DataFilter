@@ -7,7 +7,7 @@ Build-Depends-Indep: debhelper
 
 Package: libdatafilter-perl
 Architecture: all
-Depends: ${perl:Depends}, libfile-mmagic-perl
+Depends: ${perl:Depends}, libarchive-zip-perl, libfile-mmagic-perl
 Description: DataFilter Framework
  Framework for filtering data.
 
