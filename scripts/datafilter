@@ -2,7 +2,7 @@
 
 # datafilter - command line tool for DataFilter suite
 
-# Copyright (C) 2006 Stefan Hornburg (Racke) <racke@linuxia.de> 
+# Copyright (C) 2006,2007 Stefan Hornburg (Racke) <racke@linuxia.de> 
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -44,13 +44,6 @@ my $df = new DataFilter;
 
 my ($input_spec, $output_spec) = @ARGV;
 my ($input, $output, $type, $record);
-
-if ($input_spec =~ s/^(xls|csv|tab)://i) {
-	$type = uc($1);	
-} else {
-	$type = $df->magic($input_spec);
-	
-}
 
 $input = $df->source(type => $type, name => $input_spec,
 					 noheader => $opts{noheader});
