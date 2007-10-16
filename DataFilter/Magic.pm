@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,17 +29,32 @@ sub new {
 	my $self = {};
 
 	$self->{ft} = new File::MMagic();
+
+	# add magic entries
+	$self->{ft}->addMagicEntry(join("\t", 0, 'byte', '', '0x03', 'application/x-dbf'));
 	bless ($self, $class);
 }
 
 sub type {
 	my ($self, $filename, $typeref) = @_;
-	my ($ft_type);
-	
-	$ft_type = $self->{ft}->checktype_filename($filename);
+	my ($ft_type, $data);
 
+	$data = $self->slurp($filename);
+	
+	$ft_type = $self->{ft}->checktype_contents($data);
+	
 	if (ref($typeref) eq 'SCALAR') {
 		$$typeref = $ft_type;
+	}
+
+	# handle encodings first
+	if ($ft_type eq 'application/x-zip') {
+		return 'ZIP';
+	}
+
+	# database files
+	if ($ft_type eq 'application/x-dbf') {
+		return 'XBase';
 	}
 	
 	if ($ft_type eq 'application/msword'
@@ -71,6 +86,21 @@ sub type {
 	}
 
 	return;
+}
+
+sub slurp {
+	my ($self, $filename) = @_;
+	my $content;
+
+	unless (open (FH, $filename)) {
+		return;
+	}
+	
+	local $/;
+	$content = <FH>;
+	close (FH);
+
+	return $content;
 }
 
 1;
