@@ -37,8 +37,17 @@ sub new {
 			$self->{directory} = dirname($self->{name});
 		}
 	}
-									 
+
 	$self->{_dbif_} = new DBIx::Easy ('XBase', $self->{directory});
+
+	unless ($self->{table}) {
+		my @t;
+
+		if (@t = $self->tables()) {
+			$self->{table} = $t[0];
+		}
+	}
+	
 	return $self;
 }
 
@@ -89,16 +98,22 @@ sub tables {
 	return $self->{_dbif_}->tables();
 }
 
+sub rows {
+	my ($self, $table) = @_;
+
+	$table ||= $self->{table};
+
+	if (exists $self->{_rows_}->{table}) {
+		return $self->{_rows_}->{table};
+	}
+
+	return;
+}
+
 sub columns {
 	my ($self, $table) = @_;
 
-	unless ($table) {
-		my @t = $self->tables();
-		if (@t == 1) {
-			$table = $t[0];
-		}
-	}
-	
+	$table ||= $self->{table};
 	$self->{_dbif_}->columns($table);
 }
 
@@ -115,6 +130,23 @@ sub add_record {
 	return $id;
 }
 
+sub enum_records {
+	my ($self, $table) = @_;
+	my ($sth, $ret);
+	
+	$table ||= $self->{table};
+
+	unless ($sth = $self->{_enums_}->{$table}) {
+		$sth = $self->{_dbif_}->process ("select * from ${table}");
+		$self->{_enums_}->{$table} = $sth;		
+	}
+
+	if ($ret = $sth->fetchrow_hashref()) {
+		$self->{_rows_}->{$table}++;
+	}
+
+	return $ret;
+}
 
 sub handle {
 	$_->[0]->{_dbif_};
