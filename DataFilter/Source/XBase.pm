@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 package DataFilter::Source::XBase;
 use strict;
+
+use File::Basename;
 use DBIx::Easy;
 use DBD::XBase;
 
@@ -29,11 +31,16 @@ sub new {
 
 	bless ($self, $class);
 
+	unless ($self->{directory}) {
+		if (-f $self->{name}) {
+			$self->{file} = basename($self->{name});
+			$self->{directory} = dirname($self->{name});
+		}
+	}
+									 
 	$self->{_dbif_} = new DBIx::Easy ('XBase', $self->{directory});
-	
 	return $self;
 }
-
 
 sub DESTROY {
 	my $self = shift;
@@ -76,7 +83,24 @@ sub _initialize_ {
 	$self->{parser} = 1;
 }
 
+sub tables {
+	my ($self) = @_;
 
+	return $self->{_dbif_}->tables();
+}
+
+sub columns {
+	my ($self, $table) = @_;
+
+	unless ($table) {
+		my @t = $self->tables();
+		if (@t == 1) {
+			$table = $t[0];
+		}
+	}
+	
+	$self->{_dbif_}->columns($table);
+}
 
 sub add_record {
 	my ($self, $table, $record) = @_;

@@ -1,2 +1,5 @@
+Tue Oct 16 12:17:19 2007 CEST
+(XBase): new methods tables, columns; recognize name parameter
+
 Tue Oct 16 11:44:15 2007 CEST
 (Magic): detection of ZIP and XBase files added
