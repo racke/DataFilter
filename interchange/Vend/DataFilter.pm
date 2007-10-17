@@ -68,24 +68,52 @@ sub datafilter {
 	$Vend::Session->{datafilter} ||= {};
 	$ret = $ct = ++$Vend::Session->{datafilter}->{count};
 	$sessref = $Vend::Session->{datafilter}->{space}->[$ct] = {errors => 0};
+
+	my ($rdir, $rfile);
 	
 	if ($source->{name} && $source->{repository}) {
 		# store file uploaded via HTTP
-		Vend::Tags->write_relative_file($source->{repository},
-										\$CGI::file{$source->{name}});
-		unless (-f $source->{repository}) {
-			Vend::Tags->error({name => 'datafilter', set => "Error writing $source->{repository}: $!"});
+		if (ref $source->{repository} eq 'HASH') {
+			$rdir = $source->{repository}->{directory};
+			$rfile = join('/', $rdir,
+						  $source->{repository}->{filename});
+		} else {
+			$rfile = $source->{repository};
+		}
+		
+		Vend::Tags->write_relative_file($rfile, \$CGI::file{$source->{name}});
+		unless (-f $rfile) {
+			Vend::Tags->error({name => 'datafilter', set => "Error writing $rfile: $!"});
 			return;
 		}
+	} elsif ($source->{repository}) {
+		$rfile = $source->{repository};
 	}
 
 	MAGIC:
 	{
 		if ($source->{magic}) {
 			# let DataFilter determine file type
-			$source->{type} = $df->magic($source->{repository}, \$fmt);
+			$source->{type} = $df->magic($rfile, \$fmt);
 		}
 
+		if ($source->{type} eq 'ZIP') {
+			# we need to unpack the archive first
+			if ($rdir) {
+				my $unpackret;
+				if ($unpackret = $df->unpack('ZIP', $rfile, $rdir)) {
+					$rfile = join('/', $rdir, $unpackret->{filename});
+					$source->{repository}->{filename} = $unpackret->{filename};
+					$source->{type} = $df->magic($rfile, \$fmt);
+				} else {
+					::logError("X: " . ::uneval($unpackret));
+				}
+			} else {
+				::logError("Repository $rfile is an archive");
+				return;
+			}
+		}
+		
 		unless ($source->{type}) {
 			my $msg;
 
@@ -96,6 +124,7 @@ sub datafilter {
 			}
 		
 			Vend::Tags->error({name => 'datafilter', set => $msg});
+			return;
 			last MAGIC;
 		}
 	}
@@ -105,7 +134,7 @@ sub datafilter {
 		# temporary file is pure virtual
 		$tmpfile = $source->{name};
 	} elsif ($source->{repository}) {
-		$tmpfile = $source->{repository};
+		$tmpfile = $rfile;
 	} else {
 		# we need to store the input as temporary file first
 		$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
