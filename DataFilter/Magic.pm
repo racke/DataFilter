@@ -44,6 +44,10 @@ sub type {
 	my ($ft_type, $data);
 
 	$data = $self->slurp($filename);
+
+	unless (defined($data)) {
+		return;
+	}
 	
 	$ft_type = $self->{ft}->checktype_contents($data);
 	
