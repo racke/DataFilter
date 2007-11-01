@@ -103,8 +103,8 @@ sub rows {
 
 	$table ||= $self->{table};
 
-	if (exists $self->{_rows_}->{table}) {
-		return $self->{_rows_}->{table};
+	if (exists $self->{_rows_}->{$table}) {
+		return $self->{_rows_}->{$table};
 	}
 
 	return;
