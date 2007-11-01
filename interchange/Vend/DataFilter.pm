@@ -87,7 +87,13 @@ sub datafilter {
 			return;
 		}
 	} elsif ($source->{repository}) {
-		$rfile = $source->{repository};
+		if (ref $source->{repository} eq 'HASH') {
+			$rdir = $source->{repository}->{directory};
+			$rfile = join('/', $rdir,
+						  $source->{repository}->{filename});
+		} else {
+			$rfile = $source->{repository};
+		}
 	}
 
 	MAGIC:
@@ -100,16 +106,18 @@ sub datafilter {
 		if ($source->{type} eq 'ZIP') {
 			# we need to unpack the archive first
 			if ($rdir) {
-				my $unpackret;
-				if ($unpackret = $df->unpack('ZIP', $rfile, $rdir)) {
+				my $unpackret = $df->unpack('ZIP', $rfile, $rdir);
+				
+				if ($unpackret->{status}) {
 					$rfile = join('/', $rdir, $unpackret->{filename});
 					$source->{repository}->{filename} = $unpackret->{filename};
 					$source->{type} = $df->magic($rfile, \$fmt);
 				} else {
-					::logError("X: " . ::uneval($unpackret));
+					Vend::Tags->error({name => 'datafilter', set => $unpackret->{error}});
+					return;
 				}
 			} else {
-				::logError("Repository $rfile is an archive");
+				Vend::Tags->error({name => 'datafilter', set => "Repository $rfile is an archive"});
 				return;
 			}
 		}
@@ -118,9 +126,9 @@ sub datafilter {
 			my $msg;
 
 			if ($fmt) {
-				$msg = "Unknown format $fmt";
+				$msg = "Unknown format $fmt for $rfile";
 			} else {
-				$msg = 'Unknown format';
+				$msg = "Unknown format for $rfile";
 			}
 		
 			Vend::Tags->error({name => 'datafilter', set => $msg});
