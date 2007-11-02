@@ -84,34 +84,22 @@ sub inout {
 		$class = $magic->type($parms{name}, \$mimetype);
 		
 		if ($class eq 'ZIP') {
+			my $retref;
+			
+			# create temporary directory
+			$tmpdir = tempdir(CLEANUP => 1);
+			
 			# unpack file and rerun magic detection
-			my ($zip, $status, $mname, $mfilename, @frags);
-		
-			$zip = new Archive::Zip;
+			$retref = $self->unpack('ZIP', $parms{name}, $tmpdir);
 
-			if (($status = $zip->read($parms{name})) == AZ_OK) {
-				# zip file, proceed if there is a single member
-				if ($zip->numberOfMembers() == 1) {
-					# extract file in temporary directory
-					$tmpdir = tempdir(CLEANUP => 0);
-					$mname = ($zip->memberNames())[0];
-					@frags = split('/', $mname);
-					$mfilename = join('/', $tmpdir, pop(@frags));
-					$parms{origname} = $parms{name};
-					$parms{name} = $mfilename;
-					if (($status = $zip->extractMember($mname, $mfilename)) == AZ_OK) {
-						# now run additional detection
-						$class = $magic->type($mfilename, \$mimetype);
-					} else {
-						die "Error while extracting member\n";
-					}
-				}
-			} else {
-				warn("Cannot read ZIP file: $status");
+			if ($retref->{status}) {
+				$parms{origname} = $parms{name};
+				$parms{name} = join('/', $tmpdir, $retref->{filename});
+				$class = $magic->type($parms{name}, \$mimetype);
 			}
 		}
 	}		
-	
+
 	unless ($class) {
 		die "$0: Source type missing\n";
 	}
@@ -197,6 +185,39 @@ sub custom_value {
 	return $self->{_configuration_}->{custom}->{$name};
 }
 
+sub unpack {
+	my ($self, $type, $filename, $directory, %opts) = @_;
+	my ($zip, $status, $mname, $mfilename, @frags, %ret);
+		
+	$zip = new Archive::Zip;
+
+	if (($status = $zip->read($filename)) == AZ_OK) {
+		# file processed successfully, proceed if there is a single member
+		if ($zip->numberOfMembers() == 1) {
+			# extract file in temporary directory
+			$mname = ($zip->memberNames())[0];
+			@frags = split('/', $mname);
+			$ret{filename} = pop(@frags);
+			$mfilename = join('/', $directory, $ret{filename});
+
+
+			if (($status = $zip->extractMember($mname, $mfilename)) == AZ_OK) {
+				$ret{status} = 1;
+			} else {
+				%ret = (status => 0,
+						error => "Error extracting member $mname: $status");
+			}
+		} else {
+			%ret = (status => 0,
+					error => "Multiple members in archive");
+		}
+	} else {
+		%ret = (status => 0,
+				error => "Cannot read ZIP file: $status");
+	}
+		
+	return \%ret;
+}
 
 1;	
 
