@@ -336,7 +336,6 @@ sub datafilter {
 				} else {
 					$record->{upload_messages} = ::uneval(\%errors);
 				}
-				::logError("Errors: " . $record->{upload_messages});
 				$sessref->{errors}++;
 			}
 			$df_target->add_record($target->{name}, $record);
