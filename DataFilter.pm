@@ -212,8 +212,16 @@ sub unpack {
 					error => "Multiple members in archive");
 		}
 	} else {
+		my $errmsg = $status;
+		
+		if ($status == AZ_IO_ERROR) {
+			$errmsg = 'I/O error';
+		} elsif ($status == AZ_FORMAT_ERROR) {
+			$errmsg = 'format error';
+		}
+		
 		%ret = (status => 0,
-				error => "Cannot read ZIP file: $status");
+				error => qq{Cannot read ZIP file "$filename": $errmsg});
 	}
 		
 	return \%ret;

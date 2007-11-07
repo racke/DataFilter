@@ -1,3 +1,7 @@
+Wed Nov  7 11:34:05 2007 CET
+
+(DataFilter): more verbose error message on ZIP read failures
+
 Mon Nov  5 13:40:37 2007 CET
 
 DataFilter v0.1011 released
