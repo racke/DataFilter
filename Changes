@@ -1,5 +1,7 @@
-Wed Nov  7 11:34:05 2007 CET
+Fri Nov 23 16:14:54 2007 CET
+(Vend::DataFilter): encapsulate loop over records to catch any backend errors
 
+Wed Nov  7 11:34:05 2007 CET
 (DataFilter): more verbose error message on ZIP read failures
 
 Mon Nov  5 13:40:37 2007 CET

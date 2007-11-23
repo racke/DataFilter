@@ -281,65 +281,72 @@ sub datafilter {
 		
 		# load order checks
 		Vend::Order::reset_order_vars();
-		
-		while ($record = $df_source->enum_records('', {order => $source->{order}})) {
-			next unless grep {/\S/} values (%$record);
 
-			next if $skip_records-- > 0;
+		eval {
+			while ($record = $df_source->enum_records('', {order => $source->{order}})) {
+				next unless grep {/\S/} values (%$record);
 
-			$record = $converter->convert($record);
+				next if $skip_records-- > 0;
 
-			# filters
-			my %errors;
+				$record = $converter->convert($record);
 
-			if ($opt->{gate} && ! $opt->{gate}->($record)) {
-				next;
-			}
+				# filters
+				my %errors;
 
-			my @cols = (keys %$record);
+				if ($opt->{gate} && ! $opt->{gate}->($record)) {
+					next;
+				}
 
-			if ($opt->{priority}) {
-				@cols = sort {$opt->{priority}->{$b} <=> $opt->{priority}->{$a}} @cols;
-			}
+				my @cols = (keys %$record);
+
+				if ($opt->{priority}) {
+					@cols = sort {$opt->{priority}->{$b} <=> $opt->{priority}->{$a}} @cols;
+				}
 			
-			for (@cols) {
-				if ($check->{$_}) {
-					my ($status, $name, $message, $newval);
+				for (@cols) {
+					if ($check->{$_}) {
+						my ($status, $name, $message, $newval);
 
-					if (ref($check->{$_}) eq 'CODE') {
-						($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_}, $record);
-					} else {
-						# use check provided by Interchange
-						($status, $name, $message, $newval) = Vend::Order::do_check("$_=$check->{$_}", $record);
-					}
+						if (ref($check->{$_}) eq 'CODE') {
+							($status, $name, $message, $newval) = $check->{$_}->($_, $record->{$_}, $record);
+						} else {
+							# use check provided by Interchange
+							($status, $name, $message, $newval) = Vend::Order::do_check("$_=$check->{$_}", $record);
+						}
 					
-					unless ($status) {
-						$errors{$_} = $message;
+						unless ($status) {
+							$errors{$_} = $message;
+						}
+						if (defined $newval) {
+							$record->{$_} = $newval;
+						}
 					}
-					if (defined $newval) {
-						$record->{$_} = $newval;
+					if ($filter->{$_}) {
+						$record->{$_} = $filter->{$_}->($record->{$_});
 					}
 				}
-				if ($filter->{$_}) {
-					$record->{$_} = $filter->{$_}->($record->{$_});
+				if ($opt->{postfilter}) {
+					$record = $opt->{postfilter}->($record);
 				}
-			}
-			if ($opt->{postfilter}) {
-				$record = $opt->{postfilter}->($record);
-			}
 
-			if (keys %errors) {
-				$record->{upload_errors} = scalar(keys %errors);
-				if ($target->{type} eq 'Memory') {
-					# no need for serialization
-					$record->{upload_messages} = \%errors;
-				} else {
-					$record->{upload_messages} = ::uneval(\%errors);
+				if (keys %errors) {
+					$record->{upload_errors} = scalar(keys %errors);
+					if ($target->{type} eq 'Memory') {
+						# no need for serialization
+						$record->{upload_messages} = \%errors;
+					} else {
+						$record->{upload_messages} = ::uneval(\%errors);
+					}
+					$sessref->{errors}++;
 				}
-				$sessref->{errors}++;
+				$df_target->add_record($target->{name}, $record);
+				undef $record;
 			}
-			$df_target->add_record($target->{name}, $record);
-			undef $record;
+		};
+
+		if ($@) {
+			Vend::Tags->error({name => 'datafilter', set => $@});
+			return;
 		}
 	} else {
 		Vend::Tags->error({name => 'datafilter', set => qq{Setup for target $target->{name} of type $target->{type} failed}});
