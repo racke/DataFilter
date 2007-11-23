@@ -1,3 +1,7 @@
+Fri Nov 23 16:17:08 2007 CET
+
+DataFilter v0.1012 released
+
 Fri Nov 23 16:14:54 2007 CET
 (Vend::DataFilter): encapsulate loop over records to catch any backend errors
 
