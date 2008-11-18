@@ -1,6 +1,6 @@
 # DataFilter::Source::CSV
 #
-# Copyright 2004,2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006,2007,2008 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,19 +52,23 @@ sub DESTROY {
 sub _initialize_ {
 	my $self = shift;
 	my $file;
-
+	my %csv_parms = ('binary' => 1, eol => "\n");
+	
 	if ($self->{file}) {
 		$file = $self->{file};
 	} else {
 		$file = $self->{name};
 	}
+
+	if ($self->{delimiter}) {
+		$csv_parms{sep_char} = $self->{delimiter};
+	}
 	
-	$self->{parser} = new Text::CSV_XS ({'binary' => 1, eol => "\n"});
+	$self->{parser} = new Text::CSV_XS (\%csv_parms);
 	$self->{fd_input} = new IO::File;
 
 	if ($self->{write}) {
-		$self->{fd_input}->open(">$file")
-			|| die qq{$0: failed to open file "$file" for writing: $! \n};
+		$self->{fd_input}->open(">$file")			|| die qq{$0: failed to open file "$file" for writing: $! \n};
 	} else {
 		$self->{fd_input}->open($file)
 			|| die qq{$0: failed to open file "$file": $! \n};
@@ -138,7 +142,7 @@ sub get_columns_csv {
 			# odd number of quotes, try again with next line
 				$self->{buffer} = $line;
 			} else {
-				$msg = "$0: $.: line not in CSV format: " . $self->{parser}->error_input() . "\n";
+				$msg = "$0: $.: line not in CSV format: " . $self->{parser}->error_diag() . "\n";
 				die ($msg);
 			}
 		}

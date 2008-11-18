@@ -96,11 +96,13 @@ sub datafilter {
 		}
 	}
 
+	my %parms;
+	
 	MAGIC:
 	{
 		if ($source->{magic}) {
 			# let DataFilter determine file type
-			$source->{type} = $df->magic($rfile, \$fmt);
+			$source->{type} = $df->magic($rfile, \$fmt, \%parms);
 		}
 
 		if ($source->{type} eq 'ZIP') {
@@ -153,7 +155,11 @@ sub datafilter {
 	
 	if ($source->{type} eq 'XLS') {
 		@extra_opts = (verify => 1);
-	} elsif ($source->{type} eq 'CSV' || $source->{type} eq 'TAB'
+	}
+	elsif ($source->{type} eq 'CSV') {
+		@extra_opts = (delimiter => $parms{delimiter});
+	}
+	elsif ($source->{type} eq 'TAB'
 			|| $source->{type} eq 'XBase') {
 		# do nothing
 	} elsif ($source->{type} eq 'Memory') {

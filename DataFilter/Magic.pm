@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006,2007,2008 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ sub new {
 }
 
 sub type {
-	my ($self, $filename, $typeref) = @_;
+	my ($self, $filename, $typeref, $parmsref) = @_;
 	my ($ft_type, $data);
 
 	$data = $self->slurp($filename);
@@ -73,7 +73,7 @@ sub type {
 	}
 
 	if ($ft_type eq 'text/plain') {
-		my ($tabs, $colons);
+		my ($tabs, $commas, $colons);
 		
 		# TAB or CSV style
 		open (FILE, $filename)
@@ -81,7 +81,8 @@ sub type {
 
 		while (<FILE>) {
 			$tabs = tr/\t/\t/;
-			$colons = tr/,/,/;
+			$commas = tr/,/,/;
+			$colons = tr/;/;/;
 			last;
 		}
 
@@ -89,7 +90,12 @@ sub type {
 		
 		if ($tabs) {
 			return 'TAB';
+		} elsif ($commas) {
+			return 'CSV';
 		} elsif ($colons) {
+			if (ref($parmsref) eq 'HASH') {
+				$parmsref->{delimiter} = ';';
+			}
 			return 'CSV';
 		}
 	}

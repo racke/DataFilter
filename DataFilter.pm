@@ -81,7 +81,7 @@ sub inout {
 		
 		require DataFilter::Magic;
 		$magic = new DataFilter::Magic;
-		$class = $magic->type($parms{name}, \$mimetype);
+		$class = $magic->type($parms{name}, \$mimetype, \%parms);
 		
 		if ($class eq 'ZIP') {
 			my $retref;
@@ -99,7 +99,7 @@ sub inout {
 			}
 		}
 	}		
-
+	
 	unless ($class) {
 		die "$0: Source type missing\n";
 	}
