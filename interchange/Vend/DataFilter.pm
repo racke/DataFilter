@@ -1,6 +1,6 @@
 # Vend::DataFilter - Interchange connector to DataFilter
 #
-# Copyright (C) 2004,2005,2006,2007 Stefan Hornburg (Racke) <racke@linuxia.de>.
+# Copyright (C) 2004,2005,2006,2007,2008 Stefan Hornburg (Racke) <racke@linuxia.de>.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -157,7 +157,9 @@ sub datafilter {
 		@extra_opts = (verify => 1);
 	}
 	elsif ($source->{type} eq 'CSV') {
-		@extra_opts = (delimiter => $parms{delimiter});
+		@extra_opts = (delimiter => $source->{delimiter},
+					  quote_char => $source->{quote_char},
+					  escape_char => $source->{escape_char});
 	}
 	elsif ($source->{type} eq 'TAB'
 			|| $source->{type} eq 'XBase') {

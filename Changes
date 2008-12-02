@@ -1,3 +1,10 @@
+Tue Dec  2 12:26:46 2008 CET
+
+DataFilter v0.1013 released
+
+(Vend::DataFilter, DataFilter::Source::CSV): accept and pass through
+delimiter, quote_char and escape_char parameters
+
 Fri Nov 23 16:17:08 2007 CET
 
 DataFilter v0.1012 released

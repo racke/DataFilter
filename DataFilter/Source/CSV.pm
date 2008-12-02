@@ -60,10 +60,19 @@ sub _initialize_ {
 		$file = $self->{name};
 	}
 
+	# CSV format has many variations on the wild
+	# use quote_char=#, escape_char=# for odd quotes
+	
 	if ($self->{delimiter}) {
 		$csv_parms{sep_char} = $self->{delimiter};
 	}
-	
+	if ($self->{quote_char}) {
+		$csv_parms{quote_char} = $self->{quote_char};
+	}
+	if ($self->{escape_char}) {
+		$csv_parms{escape_char} = $self->{escape_char};
+	}
+
 	$self->{parser} = new Text::CSV_XS (\%csv_parms);
 	$self->{fd_input} = new IO::File;
 
