@@ -1,6 +1,6 @@
 # Vend::DataFilter - Interchange connector to DataFilter
 #
-# Copyright (C) 2004,2005,2006,2007,2008 Stefan Hornburg (Racke) <racke@linuxia.de>.
+# Copyright (C) 2004,2005,2006,2007,2008,2009 Stefan Hornburg (Racke) <racke@linuxia.de>.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -180,6 +180,8 @@ sub datafilter {
 		$df_source = $df->source(type => $source->{type},
 								 name => $tmpfile,
 								 noheader => $source->{noheader},
+								 skip_before => $source->{skip_before},
+								 rowspan => $source->{rowspan},
 								 @extra_opts);
 	};
 	

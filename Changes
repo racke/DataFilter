@@ -1,6 +1,6 @@
 Wed Oct 14 11:36:07 2009 CEST
 
-(scripts/datafilter, DataFilter::Source::TAB): new options --skip-before,
+(scripts/datafilter, DataFilter::Source::TAB, Vend::DataFilter): new options --skip-before,
 --rowspan, pass table in add_record call
 
 Tue Dec  2 12:26:46 2008 CET
