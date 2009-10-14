@@ -1,6 +1,6 @@
 # DataFilter::Source::TAB
 #
-# Copyright 2005,2006 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006,2009 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref ($proto) || $proto;
 	my $self = {@_};
-
+	
 	if (ref($self->{columns}) eq 'ARRAY') {
 		# do nothing
 	} elsif ($self->{columns}) {
@@ -72,7 +72,7 @@ sub _initialize_ {
 		my @cols;
 		$self->get_columns_tab(\@cols);
 		@{$self->{columns}} = map {s/^\s+//; s/\s+//; $_} @cols;
-		
+
 		if ($self->{noheader}) {
 			# save row for next access
 			$self->{buffer} = [@{$self->{columns}}];
@@ -119,7 +119,7 @@ sub columns {
 
 sub get_columns_tab {
 	my ($self, $colref) = @_;
-	my $line;
+	my (@cols, $line, $rows);
 	my $fd = $self->{fd_input};
 
 	# buffer might contain a row already read
@@ -129,14 +129,32 @@ sub get_columns_tab {
 		return @$colref;
 	}
 	
-	while (defined ($line = <$fd>)) {
+	while (defined ($line = <$fd>)) {	
 		# skip empty/blank/comment lines
 		next if $line =~ /^\s*$/;
 		# remove newlines and carriage returns
 		chomp ($line);
 		$line =~ s/\r$//;
 
-		@$colref = split (/\t/, $line);
+		@cols = split (/\t/, $line);
+
+		# whether to skip part of the header
+		if (exists $self->{skip_before}
+			&& $cols[0] ne $self->{skip_before}) {
+			next;
+		}
+
+		delete $self->{skip_before};
+		
+		if ($self->{rowspan} > 1
+			&& ++$rows < $self->{rowspan}) {
+			push (@$colref, @cols);
+			next;
+		}
+		else {
+			push (@$colref, @cols);
+		}
+
 		return @$colref;
 	}
 }
@@ -148,7 +166,7 @@ sub rows {
 }
 
 sub add_record {
-	my ($self, $record) = @_;
+	my ($self, $table, $record) = @_;
 	my (@out, $status, $fd);
 
 	for ($self->columns()) {

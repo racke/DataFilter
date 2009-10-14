@@ -109,6 +109,9 @@ sub inout {
 	}
 	
 	$class = "DataFilter::Source::$class";
+
+	# sanitize options and provide proper defaults
+	$parms{rowspan} ||= 1;
 	
 	eval "require $class";
 	if ($@) {
