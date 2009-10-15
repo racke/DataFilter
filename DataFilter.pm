@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2004,2005,2006,2007,2008 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006,2007,2008,2009 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ use DataFilter::Converter;
 require Exporter;
 
 @ISA = qw(Exporter);
-$VERSION = '0.1013';
+$VERSION = '0.1014';
 
 sub new {
 	my $proto = shift;
