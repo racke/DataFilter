@@ -1,4 +1,6 @@
-Wed Oct 14 11:36:07 2009 CEST
+Thu Oct 15 14:14:06 2009 CEST
+
+DataFilter v0.1014 released
 
 (scripts/datafilter, DataFilter::Source::TAB, Vend::DataFilter): new options --skip-before,
 --rowspan, pass table in add_record call
