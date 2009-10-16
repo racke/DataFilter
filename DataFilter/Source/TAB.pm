@@ -71,7 +71,7 @@ sub _initialize_ {
 	unless (@{$self->{columns}}) {
 		my @cols;
 		$self->get_columns_tab(\@cols);
-		@{$self->{columns}} = map {s/^\s+//; s/\s+//; $_} @cols;
+		@{$self->{columns}} = map {s/^\s+//; s/\s+$//; $_} @cols;
 
 		if ($self->{noheader}) {
 			# save row for next access
