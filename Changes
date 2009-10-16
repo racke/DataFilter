@@ -2,6 +2,7 @@ Fri Oct 16 09:39:07 2009 CEST
 
 DataFilter v0.1015 released
 
+(DataFilter::Source::TAB): new option headers_strip_white
 (DataFilter::Source::TAB): fix bug causing all whitespace to be removed from
 the column name instead of the trailing whitespace
 

@@ -181,6 +181,7 @@ sub datafilter {
 								 name => $tmpfile,
 								 noheader => $source->{noheader},
 								 skip_before => $source->{skip_before},
+								 headers_strip_white => $source->{headers_strip_white},
 								 rowspan => $source->{rowspan},
 								 @extra_opts);
 	};

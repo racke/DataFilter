@@ -71,8 +71,14 @@ sub _initialize_ {
 	unless (@{$self->{columns}}) {
 		my @cols;
 		$self->get_columns_tab(\@cols);
-		@{$self->{columns}} = map {s/^\s+//; s/\s+$//; $_} @cols;
 
+		if ($self->{headers_strip_white}) {
+			@{$self->{columns}} = map {s/\s+//g; $_} @cols;
+		}
+		else {
+			@{$self->{columns}} = map {s/^\s+//; s/\s+$//; $_} @cols;
+		}
+		
 		if ($self->{noheader}) {
 			# save row for next access
 			$self->{buffer} = [@{$self->{columns}}];
