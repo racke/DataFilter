@@ -1,3 +1,10 @@
+Fri Oct 23 14:11:40 2009 CEST
+
+DataFilter v0.1016 released
+
+(DataFilter.:Source::Memory, Vend::DataFilter): new option columns_auto
+(scripts/datafilter, Vend::DataFilter): new option --header-row
+
 Fri Oct 16 09:39:07 2009 CEST
 
 DataFilter v0.1015 released
