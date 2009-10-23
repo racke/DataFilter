@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# Copyright 2005,2006,2007 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2005,2006,2007,2009 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -133,7 +133,7 @@ sub enum_records {
 
 sub add_record {
 	my ($self, $table, $record) = @_;
-	my (@cols);
+	my (@cols, $els);
 
 	# check for columns in that "table"
 	unless (@cols = $self->columns($table)) {
@@ -143,7 +143,14 @@ sub add_record {
 	# match columns with give record
 	for (keys %$record) {
 		unless (defined $self->column_index($table, $_)) {
-			die "$0: invalid column $_ for table $table\n";
+			if ($self->{columns_auto}) {
+				# automatically add column
+				$els = push (@{$self->{_cache_}->{$table}->{columns}}, $_);
+				$self->{_cache_}->{$table}->{column_index}->{$_} = $els - 1;
+				next;
+			}
+			
+			die "$0: invalid column $_ for table $table (columns: " . join(',', @cols) . "\n";
 		}
 	}
 	
