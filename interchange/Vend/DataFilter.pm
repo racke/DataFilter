@@ -181,6 +181,7 @@ sub datafilter {
 								 name => $tmpfile,
 								 noheader => $source->{noheader},
 								 skip_before => $source->{skip_before},
+								 header_row => $source->{header_row},
 								 headers_strip_white => $source->{headers_strip_white},
 								 rowspan => $source->{rowspan},
 								 @extra_opts);
@@ -245,7 +246,9 @@ sub datafilter {
 
 		$df_target = $df->target(type => 'Memory',
 								 name => $target->{name},
-								 columns => $columns);
+								 columns => $columns,
+								 columns_auto => $target->{columns_auto});
+		
 	} elsif ($target->{type} eq 'XBase') {
 		my $columns = $target->{columns} || $sessref->{columns};
 		$df_target = $df->target(type => 'XBase',
