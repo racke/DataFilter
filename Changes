@@ -1,3 +1,9 @@
+Thu Oct 29 11:58:53 2009 CET
+
+DataFilter v0.1017 released
+
+(Vend::DataFilter): skip records where postfilter returns false value
+
 Fri Oct 23 14:11:40 2009 CEST
 
 DataFilter v0.1016 released

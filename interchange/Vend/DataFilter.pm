@@ -340,7 +340,10 @@ sub datafilter {
 					}
 				}
 				if ($opt->{postfilter}) {
-					$record = $opt->{postfilter}->($record);
+					unless ($record = $opt->{postfilter}->($record)) {
+						# postfilter indicates that record should be ignored
+						next;
+					}
 				}
 
 				if (keys %errors) {
