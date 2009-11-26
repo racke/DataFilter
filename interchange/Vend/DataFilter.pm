@@ -336,7 +336,8 @@ sub datafilter {
 						}
 					}
 					if ($filter->{$_}) {
-						$record->{$_} = $filter->{$_}->($record->{$_});
+						$record->{$_} = $filter->{$_}->($record->{$_},
+														$record, $_);
 					}
 				}
 				if ($opt->{postfilter}) {
