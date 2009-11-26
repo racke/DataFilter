@@ -1,3 +1,8 @@
+Thu Nov 26 10:50:51 2009 CET
+
+(Vend::DataFilter): pass pointer to the whole record and the name of the
+field to filters
+
 Thu Oct 29 11:58:53 2009 CET
 
 DataFilter v0.1017 released
