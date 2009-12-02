@@ -33,7 +33,11 @@ sub new {
 	} else {
 		$self->{columns} = [];
 	}
-	
+
+	if (exists $self->{skip_before} && $self->{skip_before} !~ /\S/) {
+		delete $self->{skip_before};
+	}
+
 	bless ($self, $class);
 
 	return $self;
