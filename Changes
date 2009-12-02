@@ -1,3 +1,9 @@
+Wed Dec  2 10:34:48 2009 CET
+
+DataFilter v0.1018 released
+
+(DataFilter::Source::TAB): apply skip-before only if non-empty
+
 Thu Nov 26 10:50:51 2009 CET
 
 (Vend::DataFilter): pass pointer to the whole record and the name of the
@@ -13,7 +19,7 @@ Fri Oct 23 14:11:40 2009 CEST
 
 DataFilter v0.1016 released
 
-(DataFilter.:Source::Memory, Vend::DataFilter): new option columns_auto
+(DataFilter::Source::Memory, Vend::DataFilter): new option columns_auto
 (scripts/datafilter, Vend::DataFilter): new option --header-row
 
 Fri Oct 16 09:39:07 2009 CEST
