@@ -30,6 +30,7 @@ my %opts;
 my $whandler = $SIG{__WARN__};
 $SIG{__WARN__} = sub {print STDERR "$0: @_";};
 unless (GetOptions (\%opts, 'show-columns', 'skip-before=s', 'rowspan=i',
+					'config-file|c=s',
 					'header-row=i',
 					'noheader')) {
     exit 1;
@@ -44,10 +45,14 @@ unless (@ARGV) {
 #
 my $df = new DataFilter;
 
+if ($opts{'config-file'}) {
+	$df->configure(type => 'AppConfig', file => $opts{'config-file'});
+}
+
 my ($input_spec, $output_spec) = @ARGV;
 my ($input, $output, $type, $record);
 
-$input = $df->source(type => $type, name => $input_spec,
+$input = $df->source(name => $input_spec,
 					 noheader => $opts{noheader},
 					 rowspan => $opts{rowspan},
 					 header_row => $opts{'header-row'},
