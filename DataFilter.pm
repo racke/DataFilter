@@ -64,12 +64,14 @@ sub configure {
 	return 1;
 }
 
+# type is one of source,target or custom
+
 sub inout {
 	my ($self, $type, %parms) = @_;
 	my ($class, $inout, $tmpdir);
 
 	# class name
-	if ($self->{_configuration_}) {
+	if ($self->{_configuration_}->{$type}->{type}) {
 		$class = $self->{_configuration_}->{$type}->{type};
 	} else {
 		$class = $parms{type};
@@ -101,7 +103,7 @@ sub inout {
 	}		
 	
 	unless ($class) {
-		die "$0: Source type missing\n";
+		die "$0: Data type for " . ucfirst($type) . " missing\n";
 	}
 
 	if ($class =~ /\W/) {
@@ -121,7 +123,7 @@ sub inout {
 	}
 
 	eval {
-		$inout = $class->new($self->{_configuration_} ? %{$self->{_configuration_}->{$type}} : %parms);
+		$inout = $class->new($self->{_configuration_}->{$type}->{type} ? %{$self->{_configuration_}->{$type}} : %parms);
 	};
 
 	if ($@) {
