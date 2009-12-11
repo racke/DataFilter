@@ -32,6 +32,7 @@ $SIG{__WARN__} = sub {print STDERR "$0: @_";};
 unless (GetOptions (\%opts, 'show-columns', 'skip-before=s', 'rowspan=i',
 					'config-file|c=s',
 					'header-row=i',
+					'match=s',
 					'noheader')) {
     exit 1;
 }
@@ -72,6 +73,11 @@ if (defined $output_spec) {
 							  columns => [$input->columns()]);
 
 		while ($record = $input->enum_records()) {
+			if ($opts{match} =~ /^(\w+)([=~])(.*)$/) {
+				my ($field, $op, $value) = ($1, $2, $3);										unless ($record->{$field} eq $value) {
+					next;
+				}
+			}
 			$output->add_record('', $record);
 		}
 	}
