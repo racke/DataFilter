@@ -112,7 +112,7 @@ sub enum_records {
 			if ($opt->{order}) {
 				$self->{enum_keys} = [sort {$data->{$a}->{$opt->{order}} <=> $data->{$b}->{$opt->{order}}} keys %$data];
 			} else {
-				$self->{enum_keys} = keys %$data;
+				$self->{enum_keys} = [keys %$data];
 			}
 		}
 			
