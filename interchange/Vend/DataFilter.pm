@@ -123,6 +123,9 @@ sub datafilter {
 				return;
 			}
 		}
+		elsif ($source->{type} eq 'CSV') {
+			$source->{delimiter} = $parms{delimiter};
+		}
 		
 		unless ($source->{type}) {
 			my $msg;
