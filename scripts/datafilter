@@ -73,11 +73,13 @@ if (defined $output_spec) {
 							  columns => [$input->columns()]);
 
 		while ($record = $input->enum_records()) {
-			if ($opts{match} =~ /^(\w+)([=~])(.*)$/) {
+			if (defined $opts{match}
+				&& $opts{match} =~ /^(\w+)([=~])(.*)$/) {
 				my ($field, $op, $value) = ($1, $2, $3);										unless ($record->{$field} eq $value) {
 					next;
 				}
 			}
+
 			$output->add_record('', $record);
 		}
 	}
