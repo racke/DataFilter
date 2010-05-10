@@ -1,6 +1,6 @@
 # Vend::DataFilter - Interchange connector to DataFilter
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2009 Stefan Hornburg (Racke) <racke@linuxia.de>.
+# Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Stefan Hornburg (Racke) <racke@linuxia.de>.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -201,6 +201,13 @@ sub datafilter {
 	# only columns requested
 	if ($opt->{return} eq 'columns') {
 		$ret = join($delim, $df_source->columns());
+		undef $df_source;
+		return $ret;
+	}
+
+	# only tables requested
+	if ($opt->{return} eq 'tables') {
+		$ret = join($delim, $df_source->tables());
 		undef $df_source;
 		return $ret;
 	}
