@@ -2,7 +2,7 @@
 
 # datafilter - command line tool for DataFilter suite
 
-# Copyright (C) 2006,2007,2009 Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright (C) 2006,2007,2009,2010 Stefan Hornburg (Racke) <racke@linuxia.de>
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,7 +29,8 @@ use DataFilter;
 my %opts;
 my $whandler = $SIG{__WARN__};
 $SIG{__WARN__} = sub {print STDERR "$0: @_";};
-unless (GetOptions (\%opts, 'show-columns', 'skip-before=s', 'rowspan=i',
+unless (GetOptions (\%opts, 'show-columns', 'show-tables',
+					'skip-before=s', 'rowspan=i',
 					'config-file|c=s',
 					'header-row=i',
 					'match=s',
@@ -58,6 +59,12 @@ $input = $df->source(name => $input_spec,
 					 rowspan => $opts{rowspan},
 					 header_row => $opts{'header-row'},
 					 skip_before => $opts{'skip-before'});
+
+if ($opts{'show-tables'}) {
+	for ($input->tables()) {
+		print "$_\n";
+	}
+}
 
 if ($opts{'show-columns'}) {
 	for ($input->columns()) {
