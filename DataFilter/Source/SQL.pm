@@ -22,6 +22,12 @@ package DataFilter::Source::SQL;
 use strict;
 use DBIx::Easy;
 
+sub tables {
+	my ($self) = @_;
+
+	return $self->{_dbif_}->tables();
+}
+
 sub purge {
 	my ($self, $table) = @_;
 

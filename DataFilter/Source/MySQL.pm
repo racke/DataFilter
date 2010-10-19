@@ -37,12 +37,6 @@ sub new {
 	return $self;
 }
 
-sub tables {
-	my ($self) = @_;
-
-	return $self->{_dbif_}->tables();
-}
-
 sub primary_key {
 	my ($self, $table) = @_;
 	my ($tblinfo_ref, @keys, $pri_name);
