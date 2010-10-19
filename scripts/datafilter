@@ -39,26 +39,32 @@ unless (GetOptions (\%opts, 'show-columns', 'show-tables',
 }
 $SIG{__WARN__} = $whandler;
 
-# sanity check
-unless (@ARGV) {
-	die "$0: missing parameters\n";
-}
 
 #
 my $df = new DataFilter;
+my ($input, $output, $type, $record);
+my ($input_spec, $output_spec);
 
 if ($opts{'config-file'}) {
 	$df->configure(type => 'AppConfig', file => $opts{'config-file'});
+	$input = $df->source();
+	$output = $df->target();
+}
+else {
+	# sanity check
+	unless (@ARGV) {
+		die "$0: missing parameters\n";
+	}
+
+	($input_spec, $output_spec) = @ARGV;
+
+	$input = $df->source(name => $input_spec,
+						 noheader => $opts{noheader},
+						 rowspan => $opts{rowspan},
+						 header_row => $opts{'header-row'},
+						 skip_before => $opts{'skip-before'});
 }
 
-my ($input_spec, $output_spec) = @ARGV;
-my ($input, $output, $type, $record);
-
-$input = $df->source(name => $input_spec,
-					 noheader => $opts{noheader},
-					 rowspan => $opts{rowspan},
-					 header_row => $opts{'header-row'},
-					 skip_before => $opts{'skip-before'});
 
 if ($opts{'show-tables'}) {
 	for ($input->tables()) {
@@ -78,16 +84,19 @@ if (defined $output_spec) {
 		$output = $df->target(type => uc($1),
 							  name => $output_spec,
 							  columns => [$input->columns()]);
-
-		while ($record = $input->enum_records()) {
-			if (defined $opts{match}
-				&& $opts{match} =~ /^(\w+)([=~])(.*)$/) {
-				my ($field, $op, $value) = ($1, $2, $3);										unless ($record->{$field} eq $value) {
-					next;
-				}
-			}
-
-			$output->add_record('', $record);
-		}
 	}
 }
+
+if ($output) {
+	while ($record = $input->enum_records()) {
+		if (defined $opts{match}
+			&& $opts{match} =~ /^(\w+)([=~])(.*)$/) {
+			my ($field, $op, $value) = ($1, $2, $3);										unless ($record->{$field} eq $value) {
+				next;
+			}
+		}
+		
+		$output->add_record('', $record);
+	}
+}
+
