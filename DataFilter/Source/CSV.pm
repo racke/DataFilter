@@ -21,7 +21,7 @@ package DataFilter::Source::CSV;
 use strict;
 
 use IO::File;
-use Text::CSV_XS;
+use Text::CSV::Encoded;
 
 sub new {
 	my $proto = shift;
@@ -73,7 +73,19 @@ sub _initialize_ {
 		$csv_parms{escape_char} = $self->{escape_char};
 	}
 
-	$self->{parser} = new Text::CSV_XS (\%csv_parms);
+	if ($self->{encoding_in}) {
+		$csv_parms{encoding_in} = $self->{encoding_in};
+	}
+	if ($self->{encoding_out}) {
+		$csv_parms{encoding_out} = $self->{encoding_out};
+	}
+	
+	$self->{parser} = new Text::CSV::Encoded (\%csv_parms);
+
+	unless ($self->{parser}) {
+		die qq{$0: failed to create CSV parser: $!\n};
+	}
+	
 	$self->{fd_input} = new IO::File;
 
 	if ($self->{write}) {
