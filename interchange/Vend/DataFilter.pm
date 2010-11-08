@@ -160,9 +160,11 @@ sub datafilter {
 		@extra_opts = (verify => 1);
 	}
 	elsif ($source->{type} eq 'CSV') {
-		@extra_opts = (delimiter => $source->{delimiter},
-					  quote_char => $source->{quote_char},
-					  escape_char => $source->{escape_char});
+		for (qw/delimiter quote_char escape_char encoding_in encoding_out/) {
+			if (exists $source->{$_}) {
+				push (@extra_opts, $_, $source->{$_});
+			}
+		}
 	}
 	elsif ($source->{type} eq 'TAB'
 			|| $source->{type} eq 'XBase') {
@@ -250,6 +252,7 @@ sub datafilter {
 		$df_target = $df->target(type => 'CSV',
 								 name => $target->{name},
 								 columns => $columns,
+								 encoding_out => $target->{encoding_out},
 								 write => 1);
 	} elsif ($target->{type} eq 'Memory') {
 		my $columns = $target->{columns} || $sessref->{columns};
