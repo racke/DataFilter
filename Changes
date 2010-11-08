@@ -1,3 +1,9 @@
+Mon Nov  8 10:40:11 2010 CET
+
+DataFilter v0.1030 released
+
+Switch from Text::CSV_XS to Text::CSV::Encoded for the CSV filter.
+
 Wed Feb 24 10:30:28 2010 CET
 
 DataFilter v0.1020 released

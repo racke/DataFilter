@@ -1,3 +1,9 @@
+datafilter (0.1030-1) unstable; urgency=low
+
+  * Switch from Text::CSV_XS to Text::CSV::Encoded for the CSV filter.
+
+ -- Stefan Hornburg (Racke) <racke@linuxia.de>  Mon, 08 Nov 2010 10:39:28 +0100
+
 datafilter (0.1020-2) unstable; urgency=low
 
   * Add dependency on libdbix-easy-perl for libdatafilter-perl.
