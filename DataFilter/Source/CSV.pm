@@ -53,6 +53,7 @@ sub _initialize_ {
 	my $self = shift;
 	my $file;
 	my %csv_parms = ('binary' => 1, eol => "\n");
+	my $parser_msg;
 	
 	if ($self->{file}) {
 		$file = $self->{file};
@@ -62,28 +63,22 @@ sub _initialize_ {
 
 	# CSV format has many variations on the wild
 	# use quote_char=#, escape_char=# for odd quotes
-	
-	if ($self->{delimiter}) {
+
+	if (exists $self->{delimiter}) {
 		$csv_parms{sep_char} = $self->{delimiter};
 	}
-	if ($self->{quote_char}) {
-		$csv_parms{quote_char} = $self->{quote_char};
-	}
-	if ($self->{escape_char}) {
-		$csv_parms{escape_char} = $self->{escape_char};
+	
+	for (qw/quote_char escape_char allow_loose_quotes encoding_in encoding_out/) {
+		if (exists $self->{$_}) {
+			$csv_parms{$_} = $self->{$_};
+		}
 	}
 
-	if ($self->{encoding_in}) {
-		$csv_parms{encoding_in} = $self->{encoding_in};
-	}
-	if ($self->{encoding_out}) {
-		$csv_parms{encoding_out} = $self->{encoding_out};
-	}
-	
 	$self->{parser} = new Text::CSV::Encoded (\%csv_parms);
 
 	unless ($self->{parser}) {
-		die qq{$0: failed to create CSV parser: $!\n};
+		$parser_msg = Text::CSV::Encoded->error_diag();
+		die qq{$0: failed to create CSV parser: $parser_msg\n};
 	}
 	
 	$self->{fd_input} = new IO::File;
@@ -164,6 +159,7 @@ sub get_columns_csv {
 				$self->{buffer} = $line;
 			} else {
 				$msg = "$0: $.: line not in CSV format: " . $self->{parser}->error_diag() . "\n";
+				$msg .= "$0: line: $line\n";
 				die ($msg);
 			}
 		}
