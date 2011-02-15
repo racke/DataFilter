@@ -116,7 +116,7 @@ sub enum_records {
 			}
 		}
 			
-		if ($key = pop(@{$self->{enum_keys}})) {
+		if (defined ($key = pop(@{$self->{enum_keys}}))) {
 			$record = $self->{_cache_}->{$table}->{data}->{$key};
 		}
 	} else {
