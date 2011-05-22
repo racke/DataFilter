@@ -44,7 +44,7 @@ sub define {
 	if (ref($args[0]) eq 'HASH') {
 		$opt = shift(@args);
 
-		%$self->{_options_} = {%$self->{_options_}, %$opt};
+		%{$self->{_options_}} = {%{$self->{_options_}}, %$opt};
 	}
 	
 	while (@args) {
