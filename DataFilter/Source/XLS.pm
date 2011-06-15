@@ -182,10 +182,34 @@ sub add_record {
 
 sub _parse_ {
 	my ($self, $xlsfile) = @_;
-	my ($xls);
+	my ($xls, $formatter);
 
 	$xls = new Spreadsheet::ParseExcel;
-	unless ($self->{_xls_} = $xls->Parse($xlsfile)) {
+
+	if ($self->{formatter}) {
+		my $class;
+
+		if ($self->{formatter} =~ /::/) {
+			$class = $self->{formatter};
+		}
+		else {
+			$class = "Spreadsheet::ParseExcel::Fmt" . ucfirst($self->{formatter});
+		}
+
+		eval "require $class";
+		if ($@) {
+			die "Failed to load formatter class $class: $@\n";
+		}
+
+		eval {
+			$formatter = $class->new;
+		};
+		if ($@) {
+			die "Failed to instantiate formatter class $class: $@\n";
+		}
+	}
+	
+	unless ($self->{_xls_} = $xls->Parse($xlsfile, $formatter)) {
 		die "$0: failed to parse $xlsfile\n";
 	}
 }
