@@ -95,6 +95,10 @@ sub columns {
 		} else {
 			$colname = $sheet->{Cells}[$header_row][$i]->{Val};
 		}
+
+		unless (defined $colname) {
+			$colname = '';
+		}
 		
 		# strip leading and trailing blanks
 		$colname =~ s/^\s+//;
