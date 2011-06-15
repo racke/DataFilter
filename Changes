@@ -1,3 +1,25 @@
+Wed Jun 15 10:23:04 2011 CEST
+
+DataFilter v0.1040 released
+
+(DataFilter::Source::XLS): Add formatter parameter to XLS source format to
+workaround encoding problems.
+
+Sun May 22 21:21:27 2011 CEST
+
+(DataFilter::Converter): Fix Perl 5.12 warning: Using a hash as a reference 
+is deprecated. 
+
+Tue Feb 15 12:20:22 2011 CET
+
+(DataFilter::Source::Memory): Fix bug causing all remaining records to be
+discarded if key is a Perl false value.
+
+Mon Nov  8 13:07:57 2010 CET
+
+(DataFilter::Source::CSV): Add allow_loose_quotes to parameters for CSV filter.
+Improve error diagnosis on CVS filter.
+
 Mon Nov  8 10:40:11 2010 CET
 
 DataFilter v0.1030 released
