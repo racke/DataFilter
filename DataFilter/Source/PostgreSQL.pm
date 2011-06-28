@@ -30,12 +30,28 @@ sub new {
 	my $proto = shift;
 	my $class = ref ($proto) || $proto;
 	my $self = {@_};
+	my $acl;
 
 	bless ($self, $class);
 
+	if ($self->{host}) {
+		if ($self->{port}) {
+			$acl = "$self->{username}\@$self->{host}:$self->{port}";
+		}
+		else {
+			$acl = "$self->{username}\@$self->{host}";
+                }
+	}
+	elsif ($self->{port}) {
+		$acl = "$self->{username}\@localhost:$self->{port}";
+	}
+	else {
+		$acl = $self->{username};
+	}
+
 	$self->{_dbif_} = new DBIx::Easy ('Pg',
 									  $self->{name},
-									  $self->{username},
+									  $acl,
 									  $self->{password}
 									 );
 	
