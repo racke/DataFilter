@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /usr/bin/env perl
 
 # datafilter - command line tool for DataFilter suite
 
@@ -32,6 +32,8 @@ $SIG{__WARN__} = sub {print STDERR "$0: @_";};
 unless (GetOptions (\%opts, 'show-columns', 'show-tables',
 					'skip-before=s', 'rowspan=i',
 					'config-file|c=s',
+					'allow-loose-quotes',
+					'encoding-in=s', 'encoding-out=s',
 					'header-row=i',
 					'match=s',
 					'noheader')) {
@@ -43,7 +45,7 @@ $SIG{__WARN__} = $whandler;
 #
 my $df = new DataFilter;
 my ($input, $output, $type, $record);
-my ($input_spec, $output_spec);
+my (%input_parms, $parm_name, $input_spec, $output_spec);
 
 if ($opts{'config-file'}) {
 	$df->configure(type => 'AppConfig', file => $opts{'config-file'});
@@ -58,11 +60,22 @@ else {
 
 	($input_spec, $output_spec) = @ARGV;
 
-	$input = $df->source(name => $input_spec,
-						 noheader => $opts{noheader},
-						 rowspan => $opts{rowspan},
-						 header_row => $opts{'header-row'},
-						 skip_before => $opts{'skip-before'});
+	%input_parms = (name => $input_spec,
+					noheader => $opts{noheader},
+					rowspan => $opts{rowspan},
+					header_row => $opts{'header-row'},
+					skip_before => $opts{'skip-before'});
+
+	for (qw/allow-loose-quotes encoding-in encoding-out/) {
+		if (exists $opts{$_}) {
+			$parm_name = $_;
+			$parm_name =~ s/-/_/g;
+			
+			$input_parms{$parm_name} = $opts{$_};
+		}
+	}
+	
+	$input = $df->source(%input_parms);
 }
 
 
