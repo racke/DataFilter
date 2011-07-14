@@ -64,12 +64,12 @@ sub _initialize_ {
 	# CSV format has many variations on the wild
 	# use quote_char=#, escape_char=# for odd quotes
 
-	if (exists $self->{delimiter}) {
+	if (exists $self->{delimiter} && defined $self->{delimiter}) {
 		$csv_parms{sep_char} = $self->{delimiter};
 	}
 	
 	for (qw/quote_char escape_char allow_loose_quotes encoding_in encoding_out/) {
-		if (exists $self->{$_}) {
+		if (exists $self->{$_} && defined $self->{$_}) {
 			$csv_parms{$_} = $self->{$_};
 		}
 	}
