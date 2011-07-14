@@ -7,7 +7,7 @@ Build-Depends-Indep: debhelper
 
 Package: libdatafilter-perl
 Architecture: all
-Depends: ${perl:Depends}, libarchive-zip-perl, libfile-mmagic-perl, libdate-calc-perl, libspreadsheet-parseexcel-perl, libspreadsheet-writeexcel-perl, libdbix-easy-perl, libtext-csv-encoded-perl
+Depends: ${perl:Depends}, libarchive-zip-perl, libfile-mmagic-perl, libdate-calc-perl, libspreadsheet-parseexcel-perl, libspreadsheet-writeexcel-perl, libdbix-easy-perl
 Description: DataFilter Framework
  Framework for filtering data.
 
