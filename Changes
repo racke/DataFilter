@@ -5,6 +5,10 @@ DataFilter v0.1050 released
 (DataFilter::Source::CSV): Skip undefined parameters passed to the constructor.
 (datafilter): Use perl command from environment.
 
+Tue Jun 28 15:30:59 2011 CEST
+
+(DataFilter::Source::PostgreSQL.pm): Recognize host and port for PostgreSQL sources.
+
 Wed Jun 15 13:52:26 2011 +0200
 
 (DataFilter::Source::XLS): Turn missing column names into empty string.
