@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(NAME => 'DataFilter',
     AUTHOR         => q{Stefan Hornburg (Racke) <racke@linuxia.de>},
-    VERSION_FROM   => 'DataFilter.pm',
+    VERSION_FROM   => 'lib/DataFilter.pm',
     EXE_FILES      => ['./scripts/datafilter'],
     PREREQ_PM      => {
 	'Test::More' => 0,
