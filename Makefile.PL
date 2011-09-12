@@ -1,5 +1,11 @@
 use ExtUtils::MakeMaker;
 
 WriteMakefile(NAME => 'DataFilter',
-			  VERSION_FROM => 'DataFilter.pm',
-			  EXE_FILES => ['./scripts/datafilter']);
+    AUTHOR         => q{Stefan Hornburg (Racke) <racke@linuxia.de>},
+    VERSION_FROM   => 'DataFilter.pm',
+    EXE_FILES      => ['./scripts/datafilter'],
+    PREREQ_PM      => {
+	'Test::More' => 0,
+	      },
+   test            => { TESTS => join( ' ', (glob( 't/*.t'), glob('t/*/*.t')))},
+);
