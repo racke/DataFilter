@@ -3,6 +3,8 @@ package DataFilter::Iterator::Rose;
 use strict;
 use warnings;
 
+use base 'DataFilter::Iterator::DBI';
+
 use Rose::DB::Object::QueryBuilder qw(build_select);
 
 =head1 NAME
@@ -63,66 +65,6 @@ sub build {
 	
 	return 1;
 }
-
-=head3 run
-
-Executes database query.
-
-=cut
-
-sub run {
-	my ($self) = @_;
-	my ($sth);
-	
-	$sth = $self->{dbh}->prepare($self->{sql});
-	$sth->execute(@{$self->{bind}});
-	$self->{results}->{sth} = $sth;
-
-	$self->{results}->{rows} = $sth->rows();
-	return 1;
-}
-
-=head3 next
-
-Returns next record in result set from database query or
-undef if result set is exhausted.
-
-=cut
-	
-sub next {
-	my ($self) = @_;
-	my ($record);
-
-	unless ($self->{results}) {
-		$self->run();
-	}
-
-	if (exists $self->{results}->{sth}) {
-		unless ($record = $self->{results}->{sth}->fetchrow_hashref()) {
-			# pending records depleted
-			delete $self->{results}->{sth};
-			$self->{results}->{valid} = 0;
-		}
-	}
-
-	return $record;
-};
-
-=head3 count
-
-Returns count of records in result set from database query.
-
-=cut
-
-sub count {
-	my ($self) = @_;
-
-	unless ($self->{results}) {
-		$self->run();
-	}
-
-	return $self->{results}->{rows};
-};
 
 =head1 AUTHOR
 
