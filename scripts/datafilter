@@ -36,6 +36,7 @@ unless (GetOptions (\%opts, 'show-columns', 'show-tables',
 					'encoding-in=s', 'encoding-out=s',
 					'header-row=i',
 					'match=s',
+		    'print-column=s',
 					'noheader')) {
     exit 1;
 }
@@ -100,7 +101,7 @@ if (defined $output_spec) {
 	}
 }
 
-if ($output) {
+if ($output || $opts{'print-column'}) {
 	while ($record = $input->enum_records()) {
 		if (defined $opts{match}
 			&& $opts{match} =~ /^(\w+)([=~])(.*)$/) {
@@ -108,8 +109,13 @@ if ($output) {
 				next;
 			}
 		}
-		
-		$output->add_record('', $record);
+
+		if ($opts{'print-column'}) {
+		    print $record->{$opts{'print-column'}}, "\n";
+                }
+		else {
+		    $output->add_record('', $record);
+		}
 	}
 }
 
