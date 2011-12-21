@@ -46,12 +46,19 @@ $SIG{__WARN__} = $whandler;
 #
 my $df = new DataFilter;
 my ($input, $output, $type, $record);
-my (%input_parms, $parm_name, $input_spec, $output_spec);
+my (%input_parms, $parm_name, $input_spec, $output_spec, @cols);
 
 if ($opts{'config-file'}) {
 	$df->configure(type => 'AppConfig', file => $opts{'config-file'});
 	$input = $df->source();
-	$output = $df->target();
+	my @cols = $input->columns($input->{table});
+
+	if (@cols) {
+	    $output = $df->target(columns => \@cols);
+	}
+	else {
+	    $output = $df->target();
+	}
 }
 else {
 	# sanity check
@@ -78,7 +85,6 @@ else {
 	
 	$input = $df->source(%input_parms);
 }
-
 
 if ($opts{'show-tables'}) {
 	for ($input->tables()) {
