@@ -226,7 +226,12 @@ sub _table_ {
 	}
 
 	if (! $name || $name !~ /\S/) {
+	    if ($self->{table}) {
+		$name = $self->{table};
+	    }
+	    else {
 		return $self->{_xls_}->{Worksheet}->[0];
+	    }
 	}
 	
 	if ($name =~ /^\d+$/) {
