@@ -56,7 +56,7 @@ sub define {
 
 sub convert {
 	my ($self, $record) = @_;
-	my (%new_record, $col, $ref, $fmt, @refcopy, %reccopy);
+	my (%new_record, $col, $ref, $fmt, @refcopy, %reccopy, %skip);
 	
 	if (exists $self->{_required_}) {
 		# check if required fields are existing
@@ -73,6 +73,8 @@ sub convert {
 	
 	for $col (keys %{$self->{_defines_}}) {
 		$ref = $self->{_defines_}->{$col};
+		$skip{$ref} = 1;
+
 		if (ref($ref) eq 'CODE') {
 			%reccopy = %$record;
 			$new_record{$col} = $ref->(\%reccopy);
@@ -90,7 +92,8 @@ sub convert {
 	
 	unless ($self->{DEFINED_ONLY}) {
 		for $col (keys %$record) {
-			unless (exists $new_record{$col}) {
+			unless (exists $new_record{$col} 
+				|| exists $skip{$col}) {
 				$new_record{$col} = $record->{$col};
 			}
 		}
