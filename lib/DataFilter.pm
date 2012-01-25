@@ -103,7 +103,7 @@ sub inout {
 	}		
 	
 	unless ($class) {
-		die "$0: Data type for " . ucfirst($type) . " missing\n";
+		die "$0: Data type for " . ucfirst($type) . " and $parms{name} missing\n";
 	}
 
 	if ($class =~ /\W/) {
