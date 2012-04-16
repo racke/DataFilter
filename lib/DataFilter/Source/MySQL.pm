@@ -98,6 +98,8 @@ sub record {
 sub add_record {
 	my ($self, $table, $record) = @_;
 	my ($sth, $id);
+
+	$table ||= $self->{table};
 	
 	$self->{_dbif_}->insert($table, %$record);
 	$sth = $self->{_dbif_}->process("select last_insert_id()");
