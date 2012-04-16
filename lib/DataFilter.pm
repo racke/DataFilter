@@ -123,7 +123,7 @@ sub inout {
 	}
 
 	eval {
-		$inout = $class->new($self->{_configuration_}->{$type}->{type} ? %{$self->{_configuration_}->{$type}} : %parms);
+		$inout = $class->new($self->{_configuration_}->{$type}->{type} ? (%{$self->{_configuration_}->{$type}}, %parms) : %parms);
 	};
 
 	if ($@) {
