@@ -144,6 +144,10 @@ sub enum_records {
 	my ($self, $table) = @_;
 	my ($obj, $sheet, @columns, %record, $cell);
 
+    unless (defined $table) {
+        $table = '0';
+    }
+    
 	$obj = $self->_table_($table);
 	
 	unless ($sheet = $self->{_sheets_}->{$table}) {
