@@ -80,7 +80,7 @@ sub tables {
 
 sub columns {
 	my ($self, $table, $opt) = @_;
-	my ($sheet, @columns, $colname, $header_row, $tolower, $last_non_empty);
+	my ($sheet, %colmap, @columns, $colname, $header_row, $tolower, $last_non_empty);
 
 	$sheet = $self->_table_($table);
 
@@ -112,6 +112,15 @@ sub columns {
 		if ($opt->{tolower}) {
 			$colname = lc($colname);
 		}
+
+        if (length $colname) {
+            if ($colmap{$colname}) {
+                die qq{Duplicate column name "$colname" in sheet $table.\n};
+            }
+
+            $colmap{$colname} = 1;
+        }
+        
 		push (@columns, $colname);
 	}
 
