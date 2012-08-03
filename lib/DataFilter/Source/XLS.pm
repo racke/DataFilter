@@ -277,7 +277,7 @@ sub _create_ {
 	
 	unless ($self->{_sheets_}->{$sheet}) {
 		# create worksheet
-		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet();
+		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet($sheet);
 		$self->{_sheets_}->{$sheet}->{row} = 0;
 		$self->{_sheets_}->{$sheet}->{sheet} = $sheet;
 		
