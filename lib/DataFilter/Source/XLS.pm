@@ -48,7 +48,7 @@ sub new {
 			$self->{_column_types_} = [split(/\s*,\s*/, delete $self->{column_types})];
 		}
 	} else {
-		$self->{_column_types_} = [];
+		$self->{_column_types_} = [('') x @{$self->{_columns_} || []}];
 	}
 
 	if ($self->{verify}) {
