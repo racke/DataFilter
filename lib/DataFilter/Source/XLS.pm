@@ -178,8 +178,15 @@ sub enum_records {
 				if ($cell->{Type} eq 'Date') {
 					# automatically convert numeric value to date string
 					$record{$columns[$i]} = $self->_date_convert_($cell);
-				} else {
-					$record{$columns[$i]} = $cell->{Val};
+				}
+                elsif ($cell->{Type} eq 'Numeric') {
+                    # numeric cells go unformatted
+                    $record{$columns[$i]} = $cell->{Val};
+                }
+                else {
+                    # the other go formatted and decoded.
+                    # this will remove \0 and decode the string
+					$record{$columns[$i]} = $cell->value;
 				}
 			} else {
 				$record{$columns[$i]} = '';
