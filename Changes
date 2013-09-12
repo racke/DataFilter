@@ -1,5 +1,7 @@
 Thu Sep 12 10:30:20 2013 CEST
 
+DataFilter v0.1060 released.
+
 (DataFilter::Source::XLS): Return decoded string if cell is not numeric, fixing problems
 with characters outside the Latin range (Marco Pessotto).
 
