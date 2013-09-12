@@ -1,6 +1,6 @@
 # DataFilter::Source::XLS
 #
-# Copyright 2004,2005,2006,2007,2011,2012 by Stefan Hornburg (Racke) <racke@linuxia.de>
+# Copyright 2004,2005,2006,2007,2011,2012,2013 by Stefan Hornburg (Racke) <racke@linuxia.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
