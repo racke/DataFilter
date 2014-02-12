@@ -5,6 +5,30 @@ DataFilter v0.1060 released.
 (DataFilter::Source::XLS): Return decoded string if cell is not numeric, fixing problems
 with characters outside the Latin range (Marco Pessotto).
 
+Tue Nov 20 15:30:04 2012 CET
+
+(DataFilter::Source::XLS.pm):
+
+Fix Perl warnings when we got columns in the constructor but no column types.
+
+Fri Aug  3 10:47:42 2012 CEST
+
+(DataFilter::Source::XLS.pm):
+
+Pass sheet name to Spreadsheet::WriteExcel object on worksheet creation.
+
+Fri Jul 20 11:41:17 2012 CEST
+
+(DataFilter::Source::XLS.pm):
+
+Check for duplicate columns in XLS spreadsheets.
+
+Tue Jul 10 10:12:49 2012 CEST
+
+(DataFilter::Source::XLS.pm):
+Prevent warning if enum_records method is called without a table name.
+Fix warning caused by empty XLS sheets.
+
 Thu Jul 14 22:12:47 2011 CEST
 
 DataFilter v0.1050 released
