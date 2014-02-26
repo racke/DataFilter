@@ -1,3 +1,10 @@
+Wed Feb 26 15:18:13 2014 CET
+
+DataFilter v0.1070 released.
+
+(Vend::DataFilter): Specify encoding "raw" when writing files on the disk
+(Marco Pessotto).
+
 Thu Sep 12 10:30:20 2013 CEST
 
 DataFilter v0.1060 released.
