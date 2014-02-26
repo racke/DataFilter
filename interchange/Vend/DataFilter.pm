@@ -81,7 +81,7 @@ sub datafilter {
 			$rfile = $source->{repository};
 		}
 		
-		Vend::Tags->write_relative_file($rfile, \$CGI::file{$source->{name}});
+		Vend::Tags->write_relative_file($rfile, { encoding => 'raw' }, \$CGI::file{$source->{name}});
 		unless (-f $rfile) {
 			Vend::Tags->error({name => 'datafilter', set => "Error writing $rfile: $!"});
 			return;
@@ -151,7 +151,7 @@ sub datafilter {
 	} else {
 		# we need to store the input as temporary file first
 		$tmpfile = "tmp/df-$Vend::Session->{id}-$Vend::Session->{pageCount}.xls";
-		Vend::Tags->write_relative_file($tmpfile, \$CGI::file{$source->{name}});
+		Vend::Tags->write_relative_file($tmpfile, { encoding => 'raw' }, \$CGI::file{$source->{name}});
 	}
 
 	my @extra_opts;
