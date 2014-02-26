@@ -1,3 +1,9 @@
+datafilter (0.1070-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Stefan Hornburg (Racke) <racke@linuxia.de>  Wed, 26 Feb 2014 15:20:26 +0100
+
 datafilter (0.1060-2) unstable; urgency=medium
 
   * Add libtext-csv-encoded-perl to list of dependencies.
