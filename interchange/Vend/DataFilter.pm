@@ -197,8 +197,15 @@ sub datafilter {
 		return;
 	}
 
-	# store column names into session
-	$sessref->{columns} = [$df_source->columns()];
+	# store column names into session and catch errors. Here we could die
+    # because of duplicated columns.
+    eval {
+        $sessref->{columns} = [$df_source->columns()];
+    };
+    if ($@) {
+		Vend::Tags->error({name => 'datafilter', set => $df->error() || $@});
+		return;
+    }
 
 	# only columns requested
 	if ($opt->{return} eq 'columns') {
