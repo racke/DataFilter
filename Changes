@@ -1,3 +1,11 @@
+Thu Mar 13 19:15:27 2014 CET
+
+DataFilter v0.1080 released.
+
+(Vend::DataFilter): 
+
+Catch exceptions with duplicated columns (Marco Pessotto, GH #3).
+
 Wed Feb 26 15:18:13 2014 CET
 
 DataFilter v0.1070 released.
