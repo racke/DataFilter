@@ -93,7 +93,10 @@ sub columns {
 		if ($self->{noheader}) {
 			$colname = $i + 1;
 		} else {
-			$colname = $sheet->{Cells}[$header_row][$i]->{Val};
+			my $col = $sheet->{Cells}[$header_row][$i];
+			if (ref $col) {
+				$colname = $col->value;
+			}
 		}
 
 		unless (defined $colname) {
