@@ -80,7 +80,7 @@ sub tables {
 
 sub columns {
 	my ($self, $table, $opt) = @_;
-	my ($sheet, %colmap, @columns, $colname, $header_row, $tolower, $last_non_empty);
+	my ($sheet, %colmap, @columns, $header_row, $tolower, $last_non_empty);
 
 	$sheet = $self->_table_($table);
 
@@ -90,6 +90,7 @@ sub columns {
 	$last_non_empty = -1;
 	
 	for (my $i = 0; $i <= $sheet->{MaxCol}; $i++) {
+		my $colname;
 		if ($self->{noheader}) {
 			$colname = $i + 1;
 		} else {
