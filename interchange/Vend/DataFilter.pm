@@ -259,6 +259,7 @@ sub datafilter {
 		$df_target = $df->target(type => 'CSV',
 								 name => $target->{name},
 								 columns => $columns,
+                                 delimiter => $target->{delimiter},
 								 encoding_out => $target->{encoding_out},
 								 write => 1);
 	} elsif ($target->{type} eq 'Memory') {
