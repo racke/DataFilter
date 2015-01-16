@@ -255,14 +255,20 @@ sub datafilter {
 		}
 	} elsif ($target->{type} eq 'CSV') {
 		my $columns = $target->{columns} || $sessref->{columns};
+        my %settings = (type => 'CSV',
+                        name => $target->{name},
+                        columns => $columns,
+                        encoding_out => $target->{encoding_out},
+                        write => 1);
 
-		$df_target = $df->target(type => 'CSV',
-								 name => $target->{name},
-								 columns => $columns,
-                                 delimiter => $target->{delimiter},
-								 encoding_out => $target->{encoding_out},
-								 write => 1);
-	} elsif ($target->{type} eq 'Memory') {
+        for (qw/delimiter quote_char/) {
+            if (exists $target->{$_} && defined $target->{$_}) {
+               $settings{$_} = $target->{$_};
+            }
+        }
+
+        $df_target = $df->target(%settings);
+    } elsif ($target->{type} eq 'Memory') {
 		my $columns = $target->{columns} || $sessref->{columns};
 
 		$df_target = $df->target(type => 'Memory',
