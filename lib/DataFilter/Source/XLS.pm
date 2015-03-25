@@ -51,6 +51,14 @@ sub new {
 		$self->{_column_types_} = [('') x @{$self->{_columns_} || []}];
 	}
 
+    if ($self->{column_widths}) {
+	    if (ref($self->{column_widths}) eq 'ARRAY') {
+	        $self->{_column_widths_} = delete $self->{column_widths};
+	    } else {
+			$self->{_columns_widths_} = [split(/\s*,\s*/, delete $self->{column_widths})];
+	    }
+	}
+
 	if ($self->{verify}) {
 		unless ($self->_parse_($self->{name})) {
 			return 'DATAFILTER_WRONG_FORMAT';
@@ -291,7 +299,17 @@ sub _create_ {
 		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet($sheet);
 		$self->{_sheets_}->{$sheet}->{row} = 0;
 		$self->{_sheets_}->{$sheet}->{sheet} = $sheet;
-		
+
+        # add column widths
+        if ($self->{_column_widths_}) {
+            my $col = -1;
+            for my $width (@{$self->{_column_widths_}}) {
+                $col++;
+                next unless defined $width && $width > 0;
+                $obj->set_column( $col , $col , $width );
+            }
+        }
+
 		if ($self->{_columns_} && ! $self->{noheader}) {
 			# add headers
 			my $col = 0;
