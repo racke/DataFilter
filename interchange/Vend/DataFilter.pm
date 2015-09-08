@@ -326,7 +326,7 @@ sub datafilter {
         # in XLS the name maps to two things: the file and the sheet,
         # but the sheet name is problematic, as it can't contain
         # slashes and has to be < 31 chars. So just put a dummy one.
-        my $tablename = target->{name};
+        my $tablename = $target->{name};
         if ($target->{type} eq 'XLS') {
             $tablename = 'Data';
         }
