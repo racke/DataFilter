@@ -323,6 +323,14 @@ sub datafilter {
 		# load order checks
 		Vend::Order::reset_order_vars();
 
+        # in XLS the name maps to two things: the file and the sheet,
+        # but the sheet name is problematic, as it can't contain
+        # slashes and has to be < 31 chars. So just put a dummy one.
+        my $tablename = target->{name};
+        if ($target->{type} eq 'XLS') {
+            $tablename = 'Data';
+        }
+
 		eval {
 			while ($record = $df_source->enum_records('', {order => $source->{order}})) {
 				next unless grep {/\S/} values (%$record);
@@ -384,7 +392,7 @@ sub datafilter {
 					}
 					$sessref->{errors}++;
 				}
-				$df_target->add_record($target->{name}, $record);
+				$df_target->add_record($tablename, $record);
 				undef $record;
 			}
 		};
