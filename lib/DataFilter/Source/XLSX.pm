@@ -22,7 +22,7 @@ use strict;
 
 use Date::Calc;
 use Spreadsheet::ParseXLSX;
-use Spreadsheet::WriteExcel;
+use Excel::Writer::XLSX;
 
 sub new {
 	my $proto = shift;
@@ -71,7 +71,7 @@ sub new {
 sub DESTROY {
 	my $self = shift;
 
-	if (UNIVERSAL::isa($self->{_xls_}, 'Spreadsheet::WriteExcel')) {
+	if (UNIVERSAL::isa($self->{_xls_}, 'Excel::Writer::XLSX')) {
 		$self->{_xls_}->close();
 	}
 }
@@ -289,14 +289,14 @@ sub _create_ {
 	$xlsfile ||= $self->{name};
 	
 	unless ($self->{_xls_}) {
-		unless ($self->{_xls_} = new Spreadsheet::WriteExcel($xlsfile)) {
+		unless ($self->{_xls_} = Excel::Writer::XLSX->new($xlsfile)) {
 			die "$0: spreadsheet $xlsfile failed to create: $!\n";
 		}
 	}
 	
 	unless ($self->{_sheets_}->{$sheet}) {
 		# create worksheet
-		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->addworksheet($sheet);
+		my $obj = $self->{_sheets_}->{$sheet}->{obj} = $self->{_xls_}->add_worksheet($sheet);
 		$self->{_sheets_}->{$sheet}->{row} = 0;
 		$self->{_sheets_}->{$sheet}->{sheet} = $sheet;
 
