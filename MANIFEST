@@ -19,6 +19,7 @@ lib/DataFilter/Source/SQL.pm
 lib/DataFilter/Source/TAB.pm
 lib/DataFilter/Source/XBase.pm
 lib/DataFilter/Source/XLS.pm
+lib/DataFilter/Source/XLSX.pm
 debian/changelog
 debian/control
 debian/copyright
