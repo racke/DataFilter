@@ -101,9 +101,13 @@ sub inout {
 			}
 		}
 	}		
-	
+	if ($class eq 'XLS' and $parms{name}) {
+        if ($parms{name} =~ m/\.xlsx$/i) {
+            $class = 'XLSX';
+        }
+    }
 	unless ($class) {
-		die "$0: Data type for " . ucfirst($type) . " and $parms{name} missing\n";
+		die "$0: Data type for " . ucfirst($type) . " and param name $parms{name} is missing\n";
 	}
 
 	if ($class =~ /\W/) {
