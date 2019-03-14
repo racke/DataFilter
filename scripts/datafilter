@@ -37,7 +37,8 @@ unless (GetOptions (\%opts, 'show-columns', 'show-tables',
 					'header-row=i',
 		    'input-table=s',
 					'match=s',
-		    'print-column=s',
+                    'print-column=s',
+                    'skip-empty',
 					'noheader')) {
     exit 1;
 }
@@ -122,7 +123,11 @@ if ($output || $opts{'print-column'}) {
 		}
 
 		if ($opts{'print-column'}) {
-		    print $record->{$opts{'print-column'}}, "\n";
+            my $data = $record->{$opts{'print-column'}};
+            if ($opts{'skip-empty'} && $data !~ /\S/) {
+                next;
+            }
+		    print $data, "\n";
                 }
 		else {
 		    $output->add_record('', $record);
