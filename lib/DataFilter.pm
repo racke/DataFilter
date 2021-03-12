@@ -77,31 +77,36 @@ sub inout {
 		$class = $parms{type};
 	}
 
-	if (! $class && -f $parms{name}) {
-		# try magic detection
-		my ($magic, $mimetype);
-		
-		require DataFilter::Magic;
-		$magic = new DataFilter::Magic;
-		$class = $magic->type($parms{name}, \$mimetype, \%parms);
-		
-		if ($class eq 'ZIP') {
-			my $retref;
-			
-			# create temporary directory
-			$tmpdir = tempdir(CLEANUP => 1);
-			
-			# unpack file and rerun magic detection
-			$retref = $self->unpack('ZIP', $parms{name}, $tmpdir);
+	if (! $class) {
+        if (-f $parms{name}) {
+            # try magic detection
+            my ($magic, $mimetype);
 
-			if ($retref->{status}) {
-				$parms{origname} = $parms{name};
-				$parms{name} = join('/', $tmpdir, $retref->{filename});
-				$class = $magic->type($parms{name}, \$mimetype);
-			}
-		}
-	}		
-	
+            require DataFilter::Magic;
+            $magic = new DataFilter::Magic;
+            $class = $magic->type($parms{name}, \$mimetype, \%parms);
+
+            if ($class eq 'ZIP') {
+                my $retref;
+
+                # create temporary directory
+                $tmpdir = tempdir(CLEANUP => 1);
+
+                # unpack file and rerun magic detection
+                $retref = $self->unpack('ZIP', $parms{name}, $tmpdir);
+
+                if ($retref->{status}) {
+                    $parms{origname} = $parms{name};
+                    $parms{name} = join('/', $tmpdir, $retref->{filename});
+                    $class = $magic->type($parms{name}, \$mimetype);
+                }
+            }
+        }
+        else {
+            die "$0: No such file or directory: $parms{name}.\n";
+        }
+	}
+
 	unless ($class) {
 		die "$0: Data type for " . ucfirst($type) . " and $parms{name} missing\n";
 	}
